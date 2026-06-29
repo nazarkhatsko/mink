@@ -1,0 +1,72 @@
+# Getting Started
+
+## Installation
+
+```bash
+go install github.com/nazarkhatsko/mink/cmd/mink@latest
+```
+
+Or build from source:
+
+```bash
+git clone https://github.com/nazarkhatsko/mink
+cd mink
+task build
+```
+
+## Your first flow
+
+Create a file `mink.yaml`:
+
+```yaml
+version: "1.0"
+info:
+  name: "My first flow"
+  description: "Ping httpbin and validate response"
+
+instances:
+  api:
+    driver: http
+
+  check:
+    driver: validate
+
+flows:
+  - name: "ping"
+    actions:
+      - id: ping
+        description: "GET httpbin"
+        use: api
+        options:
+          method: GET
+          url: "https://httpbin.org/get"
+
+      - id: validate
+        description: "Validate response status"
+        use: check
+        options:
+          value: "${actions.ping}"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 200
+```
+
+## Run it
+
+```bash
+mink run mink.yaml
+```
+
+## Commands
+
+```bash
+mink run <file>                      # run all flows
+mink run <file> --flow <name>        # run a specific flow
+mink run <file> --reporter compact   # change output format
+mink run <file> --env .env           # load environment variables from file
+mink validate <file>                 # validate config without running
+mink list-drivers                    # list available drivers
+```

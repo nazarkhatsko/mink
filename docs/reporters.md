@@ -1,0 +1,62 @@
+# Reporters
+
+Control output format with the `--reporter` flag:
+
+```bash
+mink run mink.yaml --reporter <name>
+```
+
+## `pretty` (default)
+
+Human-readable output with icons, descriptions and timing.
+
+```
+▶ flow: user-lifecycle
+  · generate_user — Generate random user payload
+  ✓ generate_user (0ms)
+  · create_user — Create new user via API
+  ✓ create_user (43ms)
+  · validate_response — Validate response schema
+  ✗ validate_response (1ms): validation failed: ...
+✓ flow done: user-lifecycle
+```
+
+## `compact`
+
+One line per action, no descriptions.
+
+```
+▶ user-lifecycle
+  ✓ generate_user (0ms)
+  ✓ create_user (43ms)
+  ✗ validate_response (1ms): validation failed
+✓ user-lifecycle
+```
+
+## `json`
+
+NDJSON — one JSON object per line. Suitable for CI pipelines and log aggregators.
+
+```json
+{"type":"flow_start","flow":"user-lifecycle"}
+{"type":"action_done","flow":"user-lifecycle","action":"generate_user","duration_ms":0,"data":{...}}
+{"type":"action_fail","flow":"user-lifecycle","action":"validate_response","duration_ms":1,"error":"..."}
+{"type":"flow_done","flow":"user-lifecycle"}
+```
+
+### Event types
+
+| `type` | Fields |
+|---|---|
+| `flow_start` | `flow` |
+| `action_done` | `flow`, `action`, `duration_ms`, `data` |
+| `action_fail` | `flow`, `action`, `duration_ms`, `error` |
+| `flow_done` | `flow` |
+
+## `silent`
+
+No output. Exit code reflects success or failure.
+
+```bash
+mink run mink.yaml --reporter silent && echo "ok"
+```

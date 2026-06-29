@@ -1,0 +1,64 @@
+version: "1.0"
+info:
+  name: "User API E2E Test"
+  description: "Full user lifecycle test"
+
+vars:
+  base_url: "https://httpbin.org"
+
+instances:
+  api:
+    driver: http
+
+  sleep:
+    driver: sleep
+
+  gen:
+    driver: generate
+
+  check:
+    driver: validate
+
+flows:
+  - name: "create-and-verify-user"
+    actions:
+      - id: generate_user
+        description: "Generate random user payload"
+        use: gen
+        options:
+          schema:
+            name:
+              type: string
+              value: faker.name
+            email:
+              type: string
+              value: faker.email
+            age:
+              type: int
+              value: faker.age
+
+      - id: post_user
+        description: "Post user payload to httpbin"
+        use: api
+        options:
+          method: POST
+          url: "${vars.base_url}/post"
+          body: "${actions.generate_user}"
+
+      - id: wait
+        description: "Wait a moment"
+        use: sleep
+        options:
+          ms: 200
+
+      - id: validate_response
+        description: "Validate response has json field"
+        use: check
+        options:
+          value: "${actions.post_user.body}"
+          schema:
+            type: object
+            required: [json]
+            properties:
+              json:
+                type: object

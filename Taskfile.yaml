@@ -1,0 +1,30 @@
+version: "3"
+
+vars:
+  BUILD_DIR: ./build
+  TARGET: "{{.BUILD_DIR}}/mink"
+
+tasks:
+  fmt:
+    desc: "Format code"
+    cmd: gofmt -w .
+
+  lint:
+    desc: "Run linter"
+    cmd: golangci-lint run ./...
+
+  lint:fix:
+    desc: "Run linter with auto-fix"
+    cmd: golangci-lint run --fix ./...
+
+  build:
+    desc: "Build binary to ./bin/mink"
+    cmd: go build -o {{.TARGET}} ./cmd/mink
+
+  clean:
+    desc: "Remove build artifacts"
+    cmd: rm -rf {{.BUILD_DIR}}
+
+  run:
+    desc: "Run a flow file (usage: task run -- <file>)"
+    cmd: go run ./cmd/mink run {{.CLI_ARGS}}

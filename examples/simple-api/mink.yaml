@@ -1,0 +1,180 @@
+version: "1.0"
+info:
+  name: "Simple API E2E Tests"
+  description: "Full user lifecycle against simple-api (run: go run examples/simple-api/main.go)"
+
+vars:
+  base_url: "http://localhost:8080"
+  api_key: "secret-api-key"
+
+instances:
+  api:
+    driver: http
+
+  gen:
+    driver: generate
+
+  check:
+    driver: validate
+
+flows:
+  - name: "unauthorized-request"
+    actions:
+      - id: request_without_key
+        description: "Request without API key should return 401"
+        use: api
+        options:
+          method: GET
+          url: "${vars.base_url}/users"
+
+      - id: validate_unauthorized
+        description: "Validate 401 response"
+        use: check
+        options:
+          value: "${actions.request_without_key}"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 401
+
+  - name: "user-lifecycle"
+    actions:
+      - id: generate_user
+        description: "Generate random user payload"
+        use: gen
+        options:
+          schema:
+            name:
+              type: string
+              value: faker.name
+            email:
+              type: string
+              value: faker.email
+            age:
+              type: int
+              value: faker.age
+
+      - id: create_user
+        description: "Create a new user"
+        use: api
+        options:
+          method: POST
+          url: "${vars.base_url}/users"
+          headers:
+            X-Api-Key: "${vars.api_key}"
+          body: "${actions.generate_user}"
+
+      - id: validate_created
+        description: "Validate create response shape"
+        use: check
+        options:
+          value: "${actions.create_user}"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 201
+              body:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [id, name, email, age]
+
+      - id: get_user
+        description: "Fetch the created user by id"
+        use: api
+        options:
+          method: GET
+          url: "${vars.base_url}/users/${actions.create_user.body.data.id}"
+          headers:
+            X-Api-Key: "${vars.api_key}"
+
+      - id: validate_get
+        description: "Validate fetched user matches created"
+        use: check
+        options:
+          value: "${actions.get_user}"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 200
+              body:
+                type: object
+                required: [data]
+
+      - id: list_users
+        description: "List all users"
+        use: api
+        options:
+          method: GET
+          url: "${vars.base_url}/users"
+          headers:
+            X-Api-Key: "${vars.api_key}"
+
+      - id: validate_list
+        description: "Validate list response has count"
+        use: check
+        options:
+          value: "${actions.list_users}"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 200
+              body:
+                type: object
+                required: [data, count]
+                properties:
+                  count:
+                    type: integer
+                    minimum: 1
+
+      - id: delete_user
+        description: "Delete the created user"
+        use: api
+        options:
+          method: DELETE
+          url: "${vars.base_url}/users/${actions.create_user.body.data.id}"
+          headers:
+            X-Api-Key: "${vars.api_key}"
+
+      - id: validate_deleted
+        description: "Validate delete response"
+        use: check
+        options:
+          value: "${actions.delete_user}"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 200
+
+      - id: get_deleted_user
+        description: "Confirm user no longer exists"
+        use: api
+        options:
+          method: GET
+          url: "${vars.base_url}/users/${actions.create_user.body.data.id}"
+          headers:
+            X-Api-Key: "${vars.api_key}"
+
+      - id: validate_not_found
+        description: "Validate 404 for deleted user"
+        use: check
+        options:
+          value: "${actions.get_deleted_user}"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 404
