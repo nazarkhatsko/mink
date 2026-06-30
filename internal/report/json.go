@@ -2,9 +2,9 @@ package report
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
+	"github.com/nazarkhatsko/mink/internal/console"
 	"github.com/nazarkhatsko/mink/pkg/driver"
 )
 
@@ -23,7 +23,7 @@ func (r *JSON) FlowDone(name string) {
 	r.write(map[string]any{"type": "flow_done", "flow": name})
 }
 
-func (r *JSON) ActionStart(_, _ string)                        {}
+func (r *JSON) ActionStart(_, _ string) {}
 
 func (r *JSON) ActionDone(id string, output driver.Output, duration time.Duration) {
 	r.write(map[string]any{
@@ -47,5 +47,5 @@ func (r *JSON) ActionFail(id string, err error, duration time.Duration) {
 
 func (r *JSON) write(v any) {
 	b, _ := json.Marshal(v)
-	fmt.Println(string(b))
+	console.Println(string(b))
 }

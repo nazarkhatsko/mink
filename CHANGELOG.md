@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+### CLI
+- Restructured CLI as `cmd/cmd.go` + per-command packages (`cmd/run`, `cmd/validate`, `cmd/doc`, `cmd/skill`, `cmd/version`), built via cobra; entrypoint moved from `cmd/mink/main.go` to root `main.go`
+- `mink list-drivers` replaced by `mink doc drivers [name]` — lists drivers, or shows config/options/output for a single driver
+- Added `mink skill install|uninstall|upgrade --claude|--codex [--global]` to manage bundled AI assistant skills
+- Added `mink version`
+
+### Drivers
+- Drivers now implement `Describe() driver.Doc` (`pkg/driver`), powering `mink doc drivers`
+- `http` driver output reshaped: `{status, body, headers}` → `{req: {method, url, headers, body}, resp: {status, headers, body}}`
+- `http` driver gained `timeout` config option (request timeout in milliseconds)
+
+### Skills
+- `skills/skills.go` embeds skill content per platform (`claude/`, `codex/`) with `Get`/`GetVersion`/`List`
+- `internal/skill` package backs `mink skill` install/uninstall/upgrade, version-tracked via `<name>.version` sidecar files
+- Manual `skills/claude/generate-flow/install.sh` and `skills/README.md` removed in favor of `mink skill install`
+- Added `skills/codex/generate-flow` — Codex equivalent of the Claude `generate-flow` skill
+
+### Documentation
+- `docs/getting-started.md` — updated install path and command list
+- `docs/drivers/http.md` — updated for `req`/`resp` output shape and `timeout` config
+- `docs/skills.md` — new page documenting `mink skill` usage
+- `CONTRIBUTING.md` — custom driver example now includes required `Describe()` method
+
 ## v1.0.0 — 2026-06-29
 
 Initial release.

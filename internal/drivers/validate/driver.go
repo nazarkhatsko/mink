@@ -16,6 +16,20 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "validate" }
 
+func (d *Driver) Describe() driver.Doc {
+	return driver.Doc{
+		Description: "Validate a value against a JSON Schema",
+		Options: []driver.FieldDoc{
+			{Name: "value", Type: "any", Required: true, Description: "Value to validate"},
+			{Name: "schema", Type: "object", Required: true, Description: "JSON Schema definition (Draft 2020-12)"},
+		},
+		Output: []driver.FieldDoc{
+			{Name: "valid", Type: "bool", Description: "true if validation passed"},
+			{Name: "error", Type: "string", Description: "Validation error message, present when valid is false"},
+		},
+	}
+}
+
 func (d *Driver) Execute(_ context.Context, options map[string]any) (driver.Output, error) {
 	value, ok := options["value"]
 	if !ok {

@@ -31,7 +31,7 @@ flows:
         description: "Validate API response"
         use: check
         options:
-          value: "${actions.create_user.body}"
+          value: "${actions.create_user.resp.body}"
           schema:
             type: object
             required: [id, name, email]
@@ -52,7 +52,7 @@ flows:
   description: "Assert 201 Created"
   use: check
   options:
-    value: "${actions.create_user}"
+    value: "${actions.create_user.resp}"
     schema:
       type: object
       properties:

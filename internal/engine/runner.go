@@ -3,9 +3,11 @@ package engine
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/nazarkhatsko/mink/internal/config"
 	"github.com/nazarkhatsko/mink/internal/report"
+	"github.com/nazarkhatsko/mink/internal/vars"
 )
 
 type engine struct {
@@ -32,8 +34,13 @@ func (e *engine) Run(ctx context.Context, flowName string) error {
 func (e *engine) runFlow(ctx context.Context, flow config.Flow) error {
 	e.reporter.FlowStart(flow.Name)
 
+	resolvedVars, err := vars.ResolveVars(e.cfg.Vars, os.Getenv)
+	if err != nil {
+		return fmt.Errorf("vars: %w", err)
+	}
+
 	actions := make(map[string]map[string]any)
-	execCtx := newContext(e.cfg.Vars, actions)
+	execCtx := newContext(resolvedVars, actions)
 
 	for _, action := range flow.Actions {
 		instance, ok := e.cfg.Instances[action.Use]

@@ -18,6 +18,25 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "http" }
 
+func (d *Driver) Describe() driver.Doc {
+	return driver.Doc{
+		Description: "Execute HTTP requests",
+		Config: []driver.FieldDoc{
+			{Name: "timeout", Type: "int", Required: false, Description: "Request timeout in milliseconds (default: no timeout)"},
+		},
+		Options: []driver.FieldDoc{
+			{Name: "method", Type: "string", Required: false, Description: "HTTP method: GET, POST, PUT, PATCH, DELETE (default: GET)"},
+			{Name: "url", Type: "string", Required: true, Description: "Full URL"},
+			{Name: "headers", Type: "object", Required: false, Description: "Request headers"},
+			{Name: "body", Type: "any", Required: false, Description: "Request body, serialized as JSON"},
+		},
+		Output: []driver.FieldDoc{
+			{Name: "req", Type: "object", Description: "Outgoing request: method, url, headers, body"},
+			{Name: "resp", Type: "object", Description: "Incoming response: status, headers, body"},
+		},
+	}
+}
+
 func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
 	method, _ := options["method"].(string)
 	if method == "" {
@@ -60,24 +79,37 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 	}
 	defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
+	respBodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("http: read response: %w", err)
 	}
 
-	headers := make(map[string]any, len(resp.Header))
+	respHeaders := make(map[string]any, len(resp.Header))
 	for k := range resp.Header {
-		headers[k] = resp.Header.Get(k)
+		respHeaders[k] = resp.Header.Get(k)
 	}
 
-	var parsedBody any
-	if err := json.Unmarshal(respBody, &parsedBody); err != nil {
-		parsedBody = string(respBody)
+	var respBody any
+	if err := json.Unmarshal(respBodyBytes, &respBody); err != nil {
+		respBody = string(respBodyBytes)
+	}
+
+	reqHeaders := make(map[string]any, len(req.Header))
+	for k := range req.Header {
+		reqHeaders[k] = req.Header.Get(k)
 	}
 
 	return driver.Output{
-		"status":  resp.StatusCode,
-		"body":    parsedBody,
-		"headers": headers,
+		"req": map[string]any{
+			"method":  method,
+			"url":     url,
+			"headers": reqHeaders,
+			"body":    options["body"],
+		},
+		"resp": map[string]any{
+			"status":  resp.StatusCode,
+			"headers": respHeaders,
+			"body":    respBody,
+		},
 	}, nil
 }

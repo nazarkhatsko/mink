@@ -42,5 +42,5 @@ flows:
         use: api
         options:
           method: GET
-          url: "${vars.base_url}/jobs/${actions.trigger_job.body.id}"
+          url: "${vars.base_url}/jobs/${actions.trigger_job.resp.body.id}"
 ```

@@ -2,6 +2,12 @@
 
 Executes HTTP requests.
 
+## Config
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `timeout` | int | no | Request timeout in milliseconds (default: no timeout) |
+
 ## Options
 
 | Field | Type | Required | Description |
@@ -15,19 +21,27 @@ Executes HTTP requests.
 
 ```json
 {
-  "status": 201,
-  "body": { ... },
-  "headers": {
-    "Content-Type": "application/json"
+  "req": {
+    "method": "POST",
+    "url": "https://api.example.com/users",
+    "headers": { "Content-Type": "application/json" },
+    "body": { ... }
+  },
+  "resp": {
+    "status": 201,
+    "headers": { "Content-Type": "application/json" },
+    "body": { ... }
   }
 }
 ```
 
 | Field | Type | Description |
 |---|---|---|
-| `status` | int | HTTP status code |
-| `body` | any | Parsed JSON body, or raw string if not JSON |
-| `headers` | object | Response headers |
+| `req` | object | Outgoing request: `method`, `url`, `headers`, `body` |
+| `resp` | object | Incoming response: `status`, `headers`, `body` |
+| `resp.status` | int | HTTP status code |
+| `resp.body` | any | Parsed JSON body, or raw string if not JSON |
+| `resp.headers` | object | Response headers |
 
 ## Example
 
@@ -46,7 +60,7 @@ flows:
           method: POST
           url: "${vars.base_url}/users"
           headers:
-            Authorization: "Bearer ${actions.login.body.token}"
+            Authorization: "Bearer ${actions.login.resp.body.token}"
             X-Request-Id: "${actions.gen.request_id}"
           body:
             name: "${actions.gen.name}"

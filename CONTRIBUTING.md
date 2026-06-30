@@ -27,6 +27,19 @@ import "github.com/nazarkhatsko/mink/pkg/driver"
 type MyDriver struct{}
 
 func (d *MyDriver) Name() string { return "mydriver" }
+
+func (d *MyDriver) Describe() driver.Doc {
+    return driver.Doc{
+        Description: "What this driver does",
+        Options: []driver.FieldDoc{
+            {Name: "key", Type: "string", Required: true, Description: "What this option does"},
+        },
+        Output: []driver.FieldDoc{
+            {Name: "result", Type: "string", Description: "What this field contains"},
+        },
+    }
+}
+
 func (d *MyDriver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
     // ...
     return driver.Output{"result": "ok"}, nil

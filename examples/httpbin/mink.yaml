@@ -55,7 +55,7 @@ flows:
         description: "Validate response has json field"
         use: check
         options:
-          value: "${actions.post_user.body}"
+          value: "${actions.post_user.resp.body}"
           schema:
             type: object
             required: [json]

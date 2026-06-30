@@ -9,9 +9,9 @@ import (
 var exprRe = regexp.MustCompile(`\$\{([^}]+)\}`)
 
 type Resolver struct {
-	Vars      map[string]string
-	Actions   map[string]map[string]any
-	Env       func(string) string
+	Vars    map[string]string
+	Actions map[string]map[string]any
+	Env     func(string) string
 }
 
 // ResolveString замінює всі ${...} у рядку.
@@ -82,6 +82,20 @@ func (r *Resolver) resolveExpr(expr string) (any, error) {
 	}
 
 	return nil, fmt.Errorf("unknown expression: %q", expr)
+}
+
+// ResolveVars резолвить ${env.*} вирази у значеннях vars.
+func ResolveVars(v map[string]string, env func(string) string) (map[string]string, error) {
+	r := &Resolver{Env: env}
+	result := make(map[string]string, len(v))
+	for k, val := range v {
+		resolved, err := r.ResolveString(val)
+		if err != nil {
+			return nil, fmt.Errorf("var %q: %w", k, err)
+		}
+		result[k] = resolved
+	}
+	return result, nil
 }
 
 // ResolveMap рекурсивно резолвить всі рядки в map.

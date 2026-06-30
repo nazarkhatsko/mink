@@ -31,7 +31,7 @@ flows:
         description: "Validate 401 response"
         use: check
         options:
-          value: "${actions.request_without_key}"
+          value: "${actions.request_without_key.resp}"
           schema:
             type: object
             properties:
@@ -70,7 +70,7 @@ flows:
         description: "Validate create response shape"
         use: check
         options:
-          value: "${actions.create_user}"
+          value: "${actions.create_user.resp}"
           schema:
             type: object
             properties:
@@ -90,7 +90,7 @@ flows:
         use: api
         options:
           method: GET
-          url: "${vars.base_url}/users/${actions.create_user.body.data.id}"
+          url: "${vars.base_url}/users/${actions.create_user.resp.body.data.id}"
           headers:
             X-Api-Key: "${vars.api_key}"
 
@@ -98,7 +98,7 @@ flows:
         description: "Validate fetched user matches created"
         use: check
         options:
-          value: "${actions.get_user}"
+          value: "${actions.get_user.resp}"
           schema:
             type: object
             properties:
@@ -122,7 +122,7 @@ flows:
         description: "Validate list response has count"
         use: check
         options:
-          value: "${actions.list_users}"
+          value: "${actions.list_users.resp}"
           schema:
             type: object
             properties:
@@ -142,7 +142,7 @@ flows:
         use: api
         options:
           method: DELETE
-          url: "${vars.base_url}/users/${actions.create_user.body.data.id}"
+          url: "${vars.base_url}/users/${actions.create_user.resp.body.data.id}"
           headers:
             X-Api-Key: "${vars.api_key}"
 
@@ -150,7 +150,7 @@ flows:
         description: "Validate delete response"
         use: check
         options:
-          value: "${actions.delete_user}"
+          value: "${actions.delete_user.resp}"
           schema:
             type: object
             properties:
@@ -163,7 +163,7 @@ flows:
         use: api
         options:
           method: GET
-          url: "${vars.base_url}/users/${actions.create_user.body.data.id}"
+          url: "${vars.base_url}/users/${actions.create_user.resp.body.data.id}"
           headers:
             X-Api-Key: "${vars.api_key}"
 
@@ -171,7 +171,7 @@ flows:
         description: "Validate 404 for deleted user"
         use: check
         options:
-          value: "${actions.get_deleted_user}"
+          value: "${actions.get_deleted_user.resp}"
           schema:
             type: object
             properties:

@@ -18,8 +18,8 @@ tasks:
     cmd: golangci-lint run --fix ./...
 
   build:
-    desc: "Build binary to ./bin/mink"
-    cmd: go build -o {{.TARGET}} ./cmd/mink
+    desc: "Build binary to ./build/mink"
+    cmd: go build -ldflags "-X github.com/nazarkhatsko/mink/cmd/version.Version=v1.0.0" -o {{.TARGET}} .
 
   clean:
     desc: "Remove build artifacts"
@@ -27,4 +27,4 @@ tasks:
 
   run:
     desc: "Run a flow file (usage: task run -- <file>)"
-    cmd: go run ./cmd/mink run {{.CLI_ARGS}}
+    cmd: go run . run {{.CLI_ARGS}}

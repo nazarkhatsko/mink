@@ -1,11 +1,11 @@
 package config
 
 type Config struct {
-	Version   string                       `yaml:"version"`
-	Info      Info                         `yaml:"info"`
-	Vars      map[string]string            `yaml:"vars"`
-	Instances map[string]Instance          `yaml:"instances"`
-	Flows     []Flow                       `yaml:"flows"`
+	Version   string              `yaml:"version"`
+	Info      Info                `yaml:"info"`
+	Vars      map[string]string   `yaml:"vars"`
+	Instances map[string]Instance `yaml:"instances"`
+	Flows     []Flow              `yaml:"flows"`
 }
 
 type Info struct {
