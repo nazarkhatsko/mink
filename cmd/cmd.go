@@ -6,6 +6,7 @@ import (
 	"github.com/nazarkhatsko/mink/cmd/skill"
 	"github.com/nazarkhatsko/mink/cmd/validate"
 	"github.com/nazarkhatsko/mink/cmd/version"
+	driverclaude "github.com/nazarkhatsko/mink/internal/drivers/claude"
 	"github.com/nazarkhatsko/mink/internal/drivers/generate"
 	driverhttp "github.com/nazarkhatsko/mink/internal/drivers/http"
 	driversleep "github.com/nazarkhatsko/mink/internal/drivers/sleep"
@@ -19,6 +20,7 @@ func init() {
 	driver.Register(generate.New())
 	driver.Register(drivervalidate.New())
 	driver.Register(driversleep.New())
+	driver.Register(driverclaude.New())
 }
 
 func Execute() error {

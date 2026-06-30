@@ -10,6 +10,7 @@ Drivers are the building blocks of mink flows. Each driver encapsulates interact
 | [generate](generate.md) | Fake data generation |
 | [validate](validate.md) | JSON Schema validation |
 | [sleep](sleep.md) | Execution delay |
+| [claude](claude.md) | Claude API messages |
 
 ## Custom drivers
 
