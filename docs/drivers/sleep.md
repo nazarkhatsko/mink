@@ -29,7 +29,7 @@ flows:
         use: api
         run_with:
           method: POST
-          url: "${vars.base_url}/jobs"
+          url: "${vars['base_url'] + '/jobs'}"
 
       - id: wait
         description: "Wait for job to complete"
@@ -42,5 +42,5 @@ flows:
         use: api
         run_with:
           method: GET
-          url: "${vars.base_url}/jobs/${actions.trigger_job.resp.body.id}"
+          url: "${vars['base_url'] + '/jobs/' + str(actions['trigger_job']['resp']['body']['id'])}"
 ```

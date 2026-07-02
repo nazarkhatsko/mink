@@ -25,13 +25,13 @@ flows:
         use: api
         run_with:
           method: GET
-          url: "${vars.base_url}/users"
+          url: "${vars['base_url'] + '/users'}"
 
       - id: validate_unauthorized
         description: "Validate 401 response"
         use: check
         run_with:
-          value: "${actions.request_without_key.resp}"
+          value: "${actions['request_without_key']['resp']}"
           schema:
             type: object
             properties:
@@ -61,16 +61,19 @@ flows:
         use: api
         run_with:
           method: POST
-          url: "${vars.base_url}/users"
+          url: "${vars['base_url'] + '/users'}"
           headers:
-            X-Api-Key: "${vars.api_key}"
-          body: "${actions.generate_user}"
+            X-Api-Key: "${vars['api_key']}"
+          body: "${actions['generate_user']}"
+        mutate_on:
+          done: |
+            state["user_id"] = event["result"]["resp"]["body"]["data"]["id"]
 
       - id: validate_created
         description: "Validate create response shape"
         use: check
         run_with:
-          value: "${actions.create_user.resp}"
+          value: "${actions['create_user']['resp']}"
           schema:
             type: object
             properties:
@@ -90,15 +93,15 @@ flows:
         use: api
         run_with:
           method: GET
-          url: "${vars.base_url}/users/${actions.create_user.resp.body.data.id}"
+          url: "${vars['base_url'] + '/users/' + str(state['user_id'])}"
           headers:
-            X-Api-Key: "${vars.api_key}"
+            X-Api-Key: "${vars['api_key']}"
 
       - id: validate_get
         description: "Validate fetched user matches created"
         use: check
         run_with:
-          value: "${actions.get_user.resp}"
+          value: "${actions['get_user']['resp']}"
           schema:
             type: object
             properties:
@@ -114,15 +117,15 @@ flows:
         use: api
         run_with:
           method: GET
-          url: "${vars.base_url}/users"
+          url: "${vars['base_url'] + '/users'}"
           headers:
-            X-Api-Key: "${vars.api_key}"
+            X-Api-Key: "${vars['api_key']}"
 
       - id: validate_list
         description: "Validate list response has count"
         use: check
         run_with:
-          value: "${actions.list_users.resp}"
+          value: "${actions['list_users']['resp']}"
           schema:
             type: object
             properties:
@@ -142,15 +145,15 @@ flows:
         use: api
         run_with:
           method: DELETE
-          url: "${vars.base_url}/users/${actions.create_user.resp.body.data.id}"
+          url: "${vars['base_url'] + '/users/' + str(state['user_id'])}"
           headers:
-            X-Api-Key: "${vars.api_key}"
+            X-Api-Key: "${vars['api_key']}"
 
       - id: validate_deleted
         description: "Validate delete response"
         use: check
         run_with:
-          value: "${actions.delete_user.resp}"
+          value: "${actions['delete_user']['resp']}"
           schema:
             type: object
             properties:
@@ -163,15 +166,15 @@ flows:
         use: api
         run_with:
           method: GET
-          url: "${vars.base_url}/users/${actions.create_user.resp.body.data.id}"
+          url: "${vars['base_url'] + '/users/' + str(state['user_id'])}"
           headers:
-            X-Api-Key: "${vars.api_key}"
+            X-Api-Key: "${vars['api_key']}"
 
       - id: validate_not_found
         description: "Validate 404 for deleted user"
         use: check
         run_with:
-          value: "${actions.get_deleted_user.resp}"
+          value: "${actions['get_deleted_user']['resp']}"
           schema:
             type: object
             properties:

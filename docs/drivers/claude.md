@@ -50,13 +50,13 @@ Sends messages to the Claude API.
 
 ```yaml
 vars:
-  api_key: "${env.ANTHROPIC_API_KEY}"
+  api_key: "${env['ANTHROPIC_API_KEY']}"
 
 instances:
   llm:
     driver: claude
     config:
-      api_key: "${vars.api_key}"
+      api_key: "${vars['api_key']}"
       model: "claude-sonnet-4-6"
 
 flows:
@@ -76,7 +76,7 @@ flows:
         description: "Validate Claude classified it as a bug"
         use: check
         run_with:
-          value: "${actions.ask_claude.out}"
+          value: "${actions['ask_claude']['out']}"
           schema:
             type: object
             properties:

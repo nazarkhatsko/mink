@@ -42,8 +42,8 @@ flows:
         use: api
         run_with:
           method: POST
-          url: "${vars.base_url}/post"
-          body: "${actions.generate_user}"
+          url: "${vars['base_url'] + '/post'}"
+          body: "${actions['generate_user']}"
 
       - id: wait
         description: "Wait a moment"
@@ -55,7 +55,7 @@ flows:
         description: "Validate response has json field"
         use: check
         run_with:
-          value: "${actions.post_user.resp.body}"
+          value: "${actions['post_user']['resp']['body']}"
           schema:
             type: object
             required: [json]

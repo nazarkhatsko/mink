@@ -7,11 +7,15 @@
 
 ### Core
 - Added `timeout` as a top-level action field (milliseconds); applies to any driver via `context.WithTimeout`
+- **Breaking:** `${}` expressions now use [Starlark](https://github.com/google/starlark-go) instead of custom dot-path resolver — use dict access `vars['key']`, `actions['id']['field']`, `env['KEY']` instead of dot notation
+- Added `state` — mutable dict shared across all actions in a flow, readable in any `${}` expression
+- Added `mutate_on` action field with `done` and `fail` Starlark scripts; `done` has access to `event['result']`, `fail` has access to `event['error']`
 
 ### Documentation
 - `docs/drivers/shell.md` — new driver reference
 - `docs/drivers/README.md` — added `shell` to built-in driver table
-- `docs/configuration.md` — documented `timeout` action field
+- `docs/configuration.md` — documented `timeout`, `mutate_on`, `state`, and new Starlark expression syntax
+- Updated all examples and driver docs to new `${}` syntax
 
 ---
 
@@ -53,8 +57,7 @@ Initial release.
 
 ### Core
 - Engine with sequential flow and action execution
-- Variable resolution: `${vars.x}`, `${env.X}`, `${actions.id.field}`, `${actions.id.arr[0]}`
-- Dot notation + array index traversal for action outputs
+- Variable resolution: `${vars['x']}`, `${env['X']}`, `${actions['id']['field']}` via Starlark expressions
 - `instances` block for named driver configuration
 - Shallow merge of action `run_with` over instance `config`
 - Driver registry with public SDK (`pkg/driver`) for custom drivers

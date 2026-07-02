@@ -29,4 +29,10 @@ type Action struct {
 	Use         string         `yaml:"use"`
 	Timeout     int            `yaml:"timeout"` // ms, 0 = no timeout
 	RunWith     map[string]any `yaml:"run_with"`
+	MutateOn    MutateOn       `yaml:"mutate_on"`
+}
+
+type MutateOn struct {
+	Done string `yaml:"done"`
+	Fail string `yaml:"fail"`
 }

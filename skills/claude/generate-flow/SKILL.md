@@ -5,12 +5,14 @@ Generate a mink flow YAML file based on the user's description.
 - Always start with `version: "1.0"` and `info:` block
 - Define all required drivers in `instances:` before using them in `flows:`
 - Every action must have `id:`, `description:`, `use:`, and `run_with:`
-- Use `${vars.x}` for reusable values, `${env.X}` for secrets
-- Reference previous action outputs via `${actions.<id>.<field>}`
+- Use `${vars['key']}` for reusable values, `${env['KEY']}` for secrets
+- Reference previous action outputs via `${actions['id']['field']}`
+- Use `state` dict (via `mutate_on.done`) to store values across actions
 - Use `gen` instance with `driver: generate` for generating fake data
 - Use `check` instance with `driver: validate` for JSON Schema validation
 - Use `sleep` instance with `driver: sleep` when async delay is needed
 - HTTP actions must always include `method:` and `url:` in `run_with:`
+- All `${}` expressions are Starlark — use dict access `['key']`, not dot notation
 
 ## Available drivers
 
@@ -20,6 +22,7 @@ Generate a mink flow YAML file based on the user's description.
 | `generate` | fake data generation |
 | `validate` | JSON Schema validation |
 | `sleep` | delay execution |
+| `shell` | shell command execution |
 
 ## Generate field types
 
@@ -56,7 +59,7 @@ info:
   description: "Generate and post a user, validate response"
 
 vars:
-  base_url: "${env.BASE_URL}"
+  base_url: "${env['BASE_URL']}"
 
 instances:
   api:
@@ -86,14 +89,17 @@ flows:
         use: api
         run_with:
           method: POST
-          url: "${vars.base_url}/users"
-          body: "${actions.generate_user}"
+          url: "${vars['base_url'] + '/users'}"
+          body: "${actions['generate_user']}"
+        mutate_on:
+          done: |
+            state["user_id"] = event["result"]["resp"]["body"]["id"]
 
       - id: validate_response
         description: "Validate response contains id"
         use: check
         run_with:
-          value: "${actions.create_user.resp.body}"
+          value: "${actions['create_user']['resp']['body']}"
           schema:
             type: object
             required: [id]

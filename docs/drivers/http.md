@@ -58,13 +58,13 @@ flows:
         use: api
         run_with:
           method: POST
-          url: "${vars.base_url}/users"
+          url: "${vars['base_url'] + '/users'}"
           headers:
-            Authorization: "Bearer ${actions.login.resp.body.token}"
-            X-Request-Id: "${actions.gen.request_id}"
+            Authorization: "${'Bearer ' + state['token']}"
+            X-Request-Id: "${actions['gen']['request_id']}"
           body:
-            name: "${actions.gen.name}"
-            email: "${actions.gen.email}"
+            name: "${actions['gen']['name']}"
+            email: "${actions['gen']['email']}"
 ```
 
 ## Notes

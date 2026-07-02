@@ -40,7 +40,7 @@ BASE_URL=https://api.example.com
 API_KEY=secret-key
 ```
 
-Variables loaded this way are available as `${env.KEY}` in the config.
+Variables loaded this way are available as `${env['KEY']}` in the config.
 
 ## `vars`
 
@@ -50,10 +50,10 @@ Named string values reusable across the config. Resolved before execution.
 vars:
   base_url: "https://api.example.com"
   admin_email: "admin@example.com"
-  api_url: "${env.API_URL}"
+  api_url: "${env['API_URL']}"
 ```
 
-Reference with `${vars.name}`.
+Reference with `${vars['name']}`.
 
 ## `instances`
 
@@ -67,7 +67,7 @@ instances:
   db:
     driver: postgres
     config:
-      dsn: "${env.DATABASE_URL}"
+      dsn: "${env['DATABASE_URL']}"
 ```
 
 | Field | Type | Description |
@@ -111,20 +111,65 @@ flows:
 | `use` | string | Instance name from `instances` |
 | `timeout` | int | Timeout in milliseconds; cancels the action if exceeded (0 = no timeout) |
 | `run_with` | object | Driver-specific options, merged over instance `config` |
+| `mutate_on.done` | string | Starlark script executed after successful action; has access to `event['result']` |
+| `mutate_on.fail` | string | Starlark script executed on failure; has access to `event['error']`; flow still stops |
 
 ## Variable resolution
 
-Expressions inside `${}` are resolved before execution.
+All `${}` expressions are evaluated as [Starlark](https://github.com/google/starlark-go) expressions before execution.
 
-| Syntax | Resolves to |
-|---|---|
-| `${vars.name}` | Value from `vars` section |
-| `${env.NAME}` | `os.Getenv("NAME")` |
-| `${actions.id.field}` | Field from a previous action's output |
-| `${actions.id}` | Full output of a previous action |
-| `${actions.id.arr[0]}` | Array index access |
+The following objects are available inside any `${}`:
 
-Expressions can appear in any string value inside `run_with`.
+| Object | Type | Description |
+|---|---|---|
+| `vars` | dict | Values from `vars` section |
+| `env` | dict | Environment variables |
+| `actions` | dict | Outputs of all previous actions, keyed by action id |
+| `state` | dict | Mutable flow-level state, written via `mutate_on` |
+
+```yaml
+url: "${vars['base_url'] + '/users'}"
+token: "${env['API_KEY']}"
+user_id: "${actions['create_user']['resp']['body']['data']['id']}"
+endpoint: "${vars['base_url'] + '/users/' + str(state['user_id'])}"
+```
+
+Since expressions are full Starlark, you can use built-in functions and list comprehensions:
+
+```yaml
+label: "${vars['env'].upper() + '-' + str(len(actions['list']['resp']['body']['data']))}"
+```
+
+## `mutate_on`
+
+Starlark scripts that run after an action to update `state`. The `state` dict is shared across all actions in the flow and readable in any `${}` expression.
+
+```yaml
+- id: login
+  use: api
+  run_with:
+    method: POST
+    url: "${vars['base_url'] + '/auth'}"
+  mutate_on:
+    done: |
+      state["token"] = event["result"]["resp"]["body"]["token"]
+      state["user_id"] = event["result"]["resp"]["body"]["data"]["id"]
+    fail: |
+      state["errors"].append({
+        "action": event["action"],
+        "message": event["error"]["message"],
+      })
+```
+
+### `event` object
+
+| Field | Available in | Description |
+|---|---|---|
+| `event['action']` | `done`, `fail` | ID of the current action |
+| `event['result']` | `done` | Full driver output (same as `actions['id']`) |
+| `event['error']` | `fail` | `{"message": "..."}` |
+
+`mutate_on.fail` always runs before the flow stops — it cannot prevent termination.
 
 ## Merge rules
 

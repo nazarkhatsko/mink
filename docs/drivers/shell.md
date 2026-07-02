@@ -49,13 +49,13 @@ flows:
         run_with:
           command: "psql -U admin -c 'TRUNCATE users;'"
           env:
-            PGPASSWORD: "${vars.db_pass}"
+            PGPASSWORD: "${vars['db_pass']}"
 
       - id: check_truncated
         description: "Assert truncate succeeded"
         use: check
         run_with:
-          value: "${actions.truncate}"
+          value: "${actions['truncate']}"
           schema:
             type: object
             properties:
