@@ -1,0 +1,273 @@
+version: "1.0"
+info:
+  name: "Order Flow E2E Tests"
+  description: |
+    Demonstrates active use of state mutations and global state accumulation.
+    Run the server first: go run examples/order-flow/main.go
+
+vars:
+  base_url: "http://localhost:8081"
+  api_key: "secret-api-key"
+
+instances:
+  api:
+    driver: http
+
+  gen:
+    driver: generate
+
+  check:
+    driver: validate
+
+flows:
+  - name: "order-lifecycle"
+    actions:
+      # ── Generate product data ────────────────────────────────────────────────
+
+      - id: generate_item_1
+        description: "Generate first product name"
+        use: gen
+        run_with:
+          schema:
+            name:
+              type: string
+              value: faker.name
+
+      - id: generate_item_2
+        description: "Generate second product name"
+        use: gen
+        run_with:
+          schema:
+            name:
+              type: string
+              value: faker.name
+
+      - id: generate_item_3
+        description: "Generate third product name"
+        use: gen
+        run_with:
+          schema:
+            name:
+              type: string
+              value: faker.name
+
+      # ── Create order — initialise state ──────────────────────────────────────
+
+      - id: create_order
+        description: "Create a new order and initialise state tracking"
+        use: api
+        run_with:
+          method: POST
+          url: "${vars['base_url'] + '/orders'}"
+          headers:
+            X-Api-Key: "${vars['api_key']}"
+        mutate_on:
+          done: |
+            state["order_id"]    = int(event["result"]["resp"]["body"]["data"]["id"])
+            state["item_ids"]    = []
+            state["item_count"]  = 0
+            state["item_names"]  = []
+          fail: |
+            state["failed_action"] = event["action"]
+            state["failed_error"]  = event["error"]["message"]
+
+      - id: validate_order_created
+        description: "Order was created with pending status"
+        use: check
+        run_with:
+          value: "${actions['create_order']['resp']}"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 201
+              body:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [id, status, items, total]
+                    properties:
+                      status:
+                        type: string
+                        const: "pending"
+                      total:
+                        type: number
+                        const: 0
+
+      # ── Add item 1 — accumulate into state ───────────────────────────────────
+
+      - id: add_item_1
+        description: "Add first item; accumulate its ID and name into state"
+        use: api
+        run_with:
+          method: POST
+          url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/items'}"
+          headers:
+            X-Api-Key: "${vars['api_key']}"
+          body:
+            name: "${actions['generate_item_1']['name']}"
+            price: 99.99
+        mutate_on:
+          done: |
+            item = event["result"]["resp"]["body"]["data"]
+            state["item_ids"].append(int(item["id"]))
+            state["item_names"].append(item["name"])
+            state["item_count"] += 1
+          fail: |
+            state["failed_action"] = event["action"]
+            state["failed_error"]  = event["error"]["message"]
+
+      # ── Add item 2 ───────────────────────────────────────────────────────────
+
+      - id: add_item_2
+        description: "Add second item; continue accumulating state"
+        use: api
+        run_with:
+          method: POST
+          url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/items'}"
+          headers:
+            X-Api-Key: "${vars['api_key']}"
+          body:
+            name: "${actions['generate_item_2']['name']}"
+            price: 49.50
+        mutate_on:
+          done: |
+            item = event["result"]["resp"]["body"]["data"]
+            state["item_ids"].append(int(item["id"]))
+            state["item_names"].append(item["name"])
+            state["item_count"] += 1
+          fail: |
+            state["failed_action"] = event["action"]
+            state["failed_error"]  = event["error"]["message"]
+
+      # ── Add item 3 — also track last_item_id ─────────────────────────────────
+
+      - id: add_item_3
+        description: "Add third item; also snapshot last_item_id for later"
+        use: api
+        run_with:
+          method: POST
+          url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/items'}"
+          headers:
+            X-Api-Key: "${vars['api_key']}"
+          body:
+            name: "${actions['generate_item_3']['name']}"
+            price: 19.00
+        mutate_on:
+          done: |
+            item = event["result"]["resp"]["body"]["data"]
+            state["item_ids"].append(int(item["id"]))
+            state["item_names"].append(item["name"])
+            state["item_count"] += 1
+            state["last_item_id"] = int(item["id"])
+          fail: |
+            state["failed_action"] = event["action"]
+            state["failed_error"]  = event["error"]["message"]
+
+      # ── Validate accumulated state after 3 additions ─────────────────────────
+
+      - id: validate_item_count
+        description: "State counter must equal 3 after adding three items"
+        use: check
+        run_with:
+          value: "${state['item_count']}"
+          schema:
+            type: integer
+            const: 3
+
+      - id: validate_item_ids_length
+        description: "State list must hold exactly 3 item IDs"
+        use: check
+        run_with:
+          value: "${len(state['item_ids'])}"
+          schema:
+            type: integer
+            const: 3
+
+      # ── Fetch order from server — capture server-side total ───────────────────
+
+      - id: get_order
+        description: "GET order to capture server-computed total into state"
+        use: api
+        run_with:
+          method: GET
+          url: "${vars['base_url'] + '/orders/' + str(state['order_id'])}"
+          headers:
+            X-Api-Key: "${vars['api_key']}"
+        mutate_on:
+          done: |
+            data = event["result"]["resp"]["body"]["data"]
+            state["server_total"]      = data["total"]
+            state["server_item_count"] = int(len(data["items"]))
+          fail: |
+            state["failed_action"] = event["action"]
+            state["failed_error"]  = event["error"]["message"]
+
+      - id: validate_order_state
+        description: "Server item count must match our locally tracked count"
+        use: check
+        run_with:
+          value: "${state['server_item_count']}"
+          schema:
+            type: integer
+            const: "${state['item_count']}"
+
+      # ── Checkout — finalise order ─────────────────────────────────────────────
+
+      - id: checkout
+        description: "Checkout the order; capture final status into state"
+        use: api
+        run_with:
+          method: POST
+          url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/checkout'}"
+          headers:
+            X-Api-Key: "${vars['api_key']}"
+        mutate_on:
+          done: |
+            data = event["result"]["resp"]["body"]["data"]
+            state["final_status"] = str(data["status"])
+            state["final_total"]  = data["total"]
+          fail: |
+            state["failed_action"] = event["action"]
+            state["failed_error"]  = event["error"]["message"]
+
+      - id: validate_checkout
+        description: "Final status must be completed and total must match server total"
+        use: check
+        run_with:
+          value: "${actions['checkout']['resp']}"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 200
+              body:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [id, status, total]
+                    properties:
+                      id:
+                        type: integer
+                        const: "${state['order_id']}"
+                      status:
+                        type: string
+                        const: "completed"
+                      total:
+                        type: number
+                        const: "${state['server_total']}"
+
+      - id: validate_final_state
+        description: "State must reflect completed status after checkout"
+        use: check
+        run_with:
+          value: "${state['final_status']}"
+          schema:
+            type: string
+            const: "completed"

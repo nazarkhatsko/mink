@@ -70,7 +70,7 @@ func (e *engine) runFlow(ctx context.Context, flow config.Flow) error {
 				}
 				_ = execCtx.resolver.ExecMutateOn(action.MutateOn.Fail, event)
 			}
-			e.reporter.ActionFail(action.ID, err, duration)
+			e.reporter.ActionFail(action.ID, err, duration, execCtx.resolver.State)
 			return fmt.Errorf("action %q: %w", action.ID, err)
 		}
 
@@ -83,14 +83,14 @@ func (e *engine) runFlow(ctx context.Context, flow config.Flow) error {
 				"error":  nil,
 			}
 			if err := execCtx.resolver.ExecMutateOn(action.MutateOn.Done, event); err != nil {
-				e.reporter.ActionFail(action.ID, fmt.Errorf("mutate_on.done: %w", err), duration)
+				e.reporter.ActionFail(action.ID, fmt.Errorf("mutate_on.done: %w", err), duration, execCtx.resolver.State)
 				return fmt.Errorf("action %q mutate_on.done: %w", action.ID, err)
 			}
 		}
 
-		e.reporter.ActionDone(action.ID, output, duration)
+		e.reporter.ActionDone(action.ID, output, duration, execCtx.resolver.State)
 	}
 
-	e.reporter.FlowDone(flow.Name)
+	e.reporter.FlowDone(flow.Name, execCtx.resolver.State)
 	return nil
 }

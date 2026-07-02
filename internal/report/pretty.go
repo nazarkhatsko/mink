@@ -15,7 +15,7 @@ func (r *Pretty) FlowStart(name string) {
 	console.Printlnf("\n▶ flow: %s", name)
 }
 
-func (r *Pretty) FlowDone(name string) {
+func (r *Pretty) FlowDone(name string, _ map[string]any) {
 	console.Printlnf("✓ flow done: %s", name)
 }
 
@@ -27,10 +27,10 @@ func (r *Pretty) ActionStart(id, description string) {
 	}
 }
 
-func (r *Pretty) ActionDone(id string, _ driver.Output, duration time.Duration) {
+func (r *Pretty) ActionDone(id string, _ driver.Output, duration time.Duration, _ map[string]any) {
 	console.Printlnf("  ✓ %s (%dms)", id, duration.Milliseconds())
 }
 
-func (r *Pretty) ActionFail(id string, err error, duration time.Duration) {
+func (r *Pretty) ActionFail(id string, err error, duration time.Duration, _ map[string]any) {
 	console.Printlnf("  ✗ %s (%dms): %s", id, duration.Milliseconds(), err)
 }
