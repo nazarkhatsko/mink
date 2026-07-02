@@ -27,5 +27,6 @@ type Action struct {
 	ID          string         `yaml:"id"`
 	Description string         `yaml:"description"`
 	Use         string         `yaml:"use"`
+	Timeout     int            `yaml:"timeout"` // ms, 0 = no timeout
 	Options     map[string]any `yaml:"options"`
 }

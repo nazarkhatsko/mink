@@ -109,6 +109,7 @@ flows:
 | `id` | string | Unique action identifier within the flow |
 | `description` | string | Human-readable description |
 | `use` | string | Instance name from `instances` |
+| `timeout` | int | Timeout in milliseconds; cancels the action if exceeded (0 = no timeout) |
 | `options` | object | Driver-specific options, merged over instance `config` |
 
 ## Variable resolution

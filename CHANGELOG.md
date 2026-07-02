@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Drivers
+- Added `shell` driver — executes shell commands via `sh -c`; options: `command` (required), `env`, `dir`; output: `exit_code`, `stdout`, `stderr`, `success`
+
+### Core
+- Added `timeout` as a top-level action field (milliseconds); applies to any driver via `context.WithTimeout`
+
+### Documentation
+- `docs/drivers/shell.md` — new driver reference
+- `docs/drivers/README.md` — added `shell` to built-in driver table
+- `docs/configuration.md` — documented `timeout` action field
+
+---
+
+
 ### CLI
 - Restructured CLI as `cmd/cmd.go` + per-command packages (`cmd/run`, `cmd/validate`, `cmd/doc`, `cmd/skill`, `cmd/version`), built via cobra; entrypoint moved from `cmd/mink/main.go` to root `main.go`
 - `mink list-drivers` replaced by `mink doc drivers [name]` — lists drivers, or shows config/options/output for a single driver

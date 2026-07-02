@@ -28,8 +28,15 @@ func (e *engine) executeAction(ctx context.Context, execCtx *Context, action con
 		return nil, 0, err
 	}
 
+	driverCtx := ctx
+	if action.Timeout > 0 {
+		var cancel context.CancelFunc
+		driverCtx, cancel = context.WithTimeout(ctx, time.Duration(action.Timeout)*time.Millisecond)
+		defer cancel()
+	}
+
 	start := time.Now()
-	output, err := d.Execute(ctx, merged)
+	output, err := d.Execute(driverCtx, merged)
 	duration := time.Since(start)
 
 	return output, duration, err

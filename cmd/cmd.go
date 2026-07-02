@@ -9,6 +9,7 @@ import (
 	driverclaude "github.com/nazarkhatsko/mink/internal/drivers/claude"
 	"github.com/nazarkhatsko/mink/internal/drivers/generate"
 	driverhttp "github.com/nazarkhatsko/mink/internal/drivers/http"
+	drivershell "github.com/nazarkhatsko/mink/internal/drivers/shell"
 	driversleep "github.com/nazarkhatsko/mink/internal/drivers/sleep"
 	drivervalidate "github.com/nazarkhatsko/mink/internal/drivers/validate"
 	"github.com/nazarkhatsko/mink/pkg/driver"
@@ -20,6 +21,7 @@ func init() {
 	driver.Register(generate.New())
 	driver.Register(drivervalidate.New())
 	driver.Register(driversleep.New())
+	driver.Register(drivershell.New())
 	driver.Register(driverclaude.New())
 }
 
