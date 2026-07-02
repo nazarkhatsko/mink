@@ -25,7 +25,7 @@ flows:
       - id: generate_user
         description: "Generate random user payload"
         use: gen
-        options:
+        run_with:
           schema:
             name:
               type: string
@@ -40,7 +40,7 @@ flows:
       - id: post_user
         description: "Post user payload to httpbin"
         use: api
-        options:
+        run_with:
           method: POST
           url: "${vars.base_url}/post"
           body: "${actions.generate_user}"
@@ -48,13 +48,13 @@ flows:
       - id: wait
         description: "Wait a moment"
         use: sleep
-        options:
+        run_with:
           ms: 200
 
       - id: validate_response
         description: "Validate response has json field"
         use: check
-        options:
+        run_with:
           value: "${actions.post_user.resp.body}"
           schema:
             type: object

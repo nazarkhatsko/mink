@@ -27,20 +27,20 @@ flows:
       - id: trigger_job
         description: "Trigger async job"
         use: api
-        options:
+        run_with:
           method: POST
           url: "${vars.base_url}/jobs"
 
       - id: wait
         description: "Wait for job to complete"
         use: sleep
-        options:
+        run_with:
           ms: 2000
 
       - id: check_job
         description: "Check job result"
         use: api
-        options:
+        run_with:
           method: GET
           url: "${vars.base_url}/jobs/${actions.trigger_job.resp.body.id}"
 ```

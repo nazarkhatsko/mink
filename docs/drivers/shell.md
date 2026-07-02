@@ -46,7 +46,7 @@ flows:
         description: "Truncate users table"
         use: sh
         timeout: 10000
-        options:
+        run_with:
           command: "psql -U admin -c 'TRUNCATE users;'"
           env:
             PGPASSWORD: "${vars.db_pass}"
@@ -54,7 +54,7 @@ flows:
       - id: check_truncated
         description: "Assert truncate succeeded"
         use: check
-        options:
+        run_with:
           value: "${actions.truncate}"
           schema:
             type: object

@@ -37,14 +37,14 @@ flows:
       - id: ping
         description: "GET httpbin"
         use: api
-        options:
+        run_with:
           method: GET
           url: "https://httpbin.org/get"
 
       - id: validate
         description: "Validate response status"
         use: check
-        options:
+        run_with:
           value: "${actions.ping.resp}"
           schema:
             type: object

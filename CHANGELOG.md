@@ -56,7 +56,7 @@ Initial release.
 - Variable resolution: `${vars.x}`, `${env.X}`, `${actions.id.field}`, `${actions.id.arr[0]}`
 - Dot notation + array index traversal for action outputs
 - `instances` block for named driver configuration
-- Shallow merge of action `options` over instance `config`
+- Shallow merge of action `run_with` over instance `config`
 - Driver registry with public SDK (`pkg/driver`) for custom drivers
 
 ### Drivers

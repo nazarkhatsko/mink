@@ -30,7 +30,7 @@ flows:
       - id: validate_response
         description: "Validate API response"
         use: check
-        options:
+        run_with:
           value: "${actions.create_user.resp.body}"
           schema:
             type: object
@@ -51,7 +51,7 @@ flows:
 - id: validate_status
   description: "Assert 201 Created"
   use: check
-  options:
+  run_with:
     value: "${actions.create_user.resp}"
     schema:
       type: object

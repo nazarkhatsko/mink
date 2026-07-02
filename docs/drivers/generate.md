@@ -56,7 +56,7 @@ flows:
       - id: payload
         description: "Generate user payload"
         use: gen
-        options:
+        run_with:
           schema:
             name:
               type: string

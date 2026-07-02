@@ -88,7 +88,7 @@ flows:
       - id: generate_user
         description: "Generate random payload"
         use: gen
-        options:
+        run_with:
           schema:
             name:
               type: string
@@ -110,7 +110,7 @@ flows:
 | `description` | string | Human-readable description |
 | `use` | string | Instance name from `instances` |
 | `timeout` | int | Timeout in milliseconds; cancels the action if exceeded (0 = no timeout) |
-| `options` | object | Driver-specific options, merged over instance `config` |
+| `run_with` | object | Driver-specific options, merged over instance `config` |
 
 ## Variable resolution
 
@@ -124,11 +124,11 @@ Expressions inside `${}` are resolved before execution.
 | `${actions.id}` | Full output of a previous action |
 | `${actions.id.arr[0]}` | Array index access |
 
-Expressions can appear in any string value inside `options`.
+Expressions can appear in any string value inside `run_with`.
 
 ## Merge rules
 
-When an action uses an instance with `config`, the action's `options` are **shallow merged** on top of `config`. Fields in `options` override the same fields in `config`.
+When an action uses an instance with `config`, the action's `run_with` is **shallow merged** on top of `config`. Fields in `run_with` override the same fields in `config`.
 
 ```yaml
 instances:
@@ -143,7 +143,7 @@ flows:
     actions:
       - id: create
         use: api
-        options:
+        run_with:
           method: POST           # merged on top
           url: "https://..."
 ```

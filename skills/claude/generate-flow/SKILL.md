@@ -4,13 +4,13 @@ Generate a mink flow YAML file based on the user's description.
 
 - Always start with `version: "1.0"` and `info:` block
 - Define all required drivers in `instances:` before using them in `flows:`
-- Every action must have `id:`, `description:`, `use:`, and `options:`
+- Every action must have `id:`, `description:`, `use:`, and `run_with:`
 - Use `${vars.x}` for reusable values, `${env.X}` for secrets
 - Reference previous action outputs via `${actions.<id>.<field>}`
 - Use `gen` instance with `driver: generate` for generating fake data
 - Use `check` instance with `driver: validate` for JSON Schema validation
 - Use `sleep` instance with `driver: sleep` when async delay is needed
-- HTTP actions must always include `method:` and `url:` in `options:`
+- HTTP actions must always include `method:` and `url:` in `run_with:`
 
 ## Available drivers
 
@@ -72,7 +72,7 @@ flows:
       - id: generate_user
         description: "Generate random user payload"
         use: gen
-        options:
+        run_with:
           schema:
             name:
               type: string
@@ -84,7 +84,7 @@ flows:
       - id: create_user
         description: "POST user to API"
         use: api
-        options:
+        run_with:
           method: POST
           url: "${vars.base_url}/users"
           body: "${actions.generate_user}"
@@ -92,7 +92,7 @@ flows:
       - id: validate_response
         description: "Validate response contains id"
         use: check
-        options:
+        run_with:
           value: "${actions.create_user.resp.body}"
           schema:
             type: object

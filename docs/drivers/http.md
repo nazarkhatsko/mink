@@ -56,7 +56,7 @@ flows:
       - id: create_user
         description: "POST new user"
         use: api
-        options:
+        run_with:
           method: POST
           url: "${vars.base_url}/users"
           headers:

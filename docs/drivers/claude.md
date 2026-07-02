@@ -65,7 +65,7 @@ flows:
       - id: ask_claude
         description: "Ask Claude to classify a support ticket"
         use: llm
-        options:
+        run_with:
           system: "You are a support ticket triage assistant. Reply with one word: bug, question, or feature."
           messages:
             - role: user
@@ -75,7 +75,7 @@ flows:
       - id: validate_classification
         description: "Validate Claude classified it as a bug"
         use: check
-        options:
+        run_with:
           value: "${actions.ask_claude.out}"
           schema:
             type: object
