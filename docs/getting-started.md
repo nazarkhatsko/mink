@@ -45,7 +45,7 @@ flows:
         description: "Validate response status"
         use: check
         run_with:
-          value: "${actions.ping.resp}"
+          value: "${actions['ping']['resp']}"
           schema:
             type: object
             properties:

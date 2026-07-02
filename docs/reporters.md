@@ -39,9 +39,10 @@ NDJSON — one JSON object per line. Suitable for CI pipelines and log aggregato
 
 ```json
 {"type":"flow_start","flow":"user-lifecycle"}
-{"type":"action_done","flow":"user-lifecycle","action":"generate_user","duration_ms":0,"data":{...}}
-{"type":"action_fail","flow":"user-lifecycle","action":"validate_response","duration_ms":1,"error":"..."}
-{"type":"flow_done","flow":"user-lifecycle"}
+{"type":"action_done","flow":"user-lifecycle","action":"generate_user","duration_ms":0,"result":{...},"state":{}}
+{"type":"action_done","flow":"user-lifecycle","action":"create_user","duration_ms":43,"result":{...},"state":{"user_id":"0001"}}
+{"type":"action_fail","flow":"user-lifecycle","action":"validate_response","duration_ms":1,"error":"...","state":{"user_id":"0001"}}
+{"type":"flow_done","flow":"user-lifecycle","state":{"user_id":"0001"}}
 ```
 
 ### Event types
@@ -49,9 +50,11 @@ NDJSON — one JSON object per line. Suitable for CI pipelines and log aggregato
 | `type` | Fields |
 |---|---|
 | `flow_start` | `flow` |
-| `action_done` | `flow`, `action`, `duration_ms`, `data` |
-| `action_fail` | `flow`, `action`, `duration_ms`, `error` |
-| `flow_done` | `flow` |
+| `action_done` | `flow`, `action`, `duration_ms`, `result`, `state` |
+| `action_fail` | `flow`, `action`, `duration_ms`, `error`, `state` |
+| `flow_done` | `flow`, `state` |
+
+`state` reflects the flow-level state **after** the action's `mutate_on` script has run, so each event shows the accumulated state at that point in time. On `action_fail` the state includes any mutations made by `mutate_on.fail` before the flow stopped.
 
 ## `silent`
 
