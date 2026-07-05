@@ -152,13 +152,12 @@ Starlark scripts that run after an action to update `state`. The `state` dict is
     url: "${vars['base_url'] + '/auth'}"
   mutate_on:
     done: |
-      state["token"] = event["result"]["resp"]["body"]["token"]
-      state["user_id"] = event["result"]["resp"]["body"]["data"]["id"]
+      body = event["result"]["resp"]["body"]
+      state["token"]   = body["token"]
+      state["user_id"] = body["data"]["id"]
     fail: |
-      state["errors"].append({
-        "action": event["action"],
-        "message": event["error"]["message"],
-      })
+      state["failed_action"] = event["action"]
+      state["failed_error"]  = event["error"]["message"]
 ```
 
 ### `event` object
@@ -170,6 +169,22 @@ Starlark scripts that run after an action to update `state`. The `state` dict is
 | `event['error']` | `fail` | `{"message": "..."}` |
 
 `mutate_on.fail` always runs before the flow stops — it cannot prevent termination.
+
+### Numeric IDs from JSON
+
+JSON numbers are always decoded as `float64` in Go. When you store an ID from a response and later use it in a URL or comparison, cast it explicitly with `int()` to avoid `"1.0"` in string interpolation:
+
+```yaml
+mutate_on:
+  done: |
+    state["order_id"] = int(event["result"]["resp"]["body"]["data"]["id"])
+```
+
+```yaml
+url: "${vars['base_url'] + '/orders/' + str(state['order_id'])}"
+```
+
+Without the `int()` cast, `str(1.0)` produces `"1.0"` and the URL will not match.
 
 ## Merge rules
 
