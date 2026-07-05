@@ -10,7 +10,7 @@ Executes a shell command via `sh -c`. Useful for database seeding, service healt
 | `env` | object | no | Extra environment variables merged with the current process environment |
 | `dir` | string | no | Working directory for the command (default: current process directory) |
 
-> `timeout` is a top-level action field, not a driver option — see "Action fields" in `mink doc configuration`.
+> `timeout` is a top-level action field, not a driver option — see "Action fields" in `mink manual configuration`.
 
 ## Output
 

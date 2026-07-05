@@ -1,6 +1,6 @@
 # Documentation
 
-Conceptual guides for humans. For configuration reference and drivers, see the technical docs in [manual/](../manual/getting-started.md) or run `mink doc ...` from the CLI.
+Conceptual guides for humans. For configuration reference and drivers, see the technical docs in [manual/](../manual/getting-started.md) or run `mink manual ...` from the CLI.
 
 - [Reporters](reporters.md)
 - [Skills](skills.md)

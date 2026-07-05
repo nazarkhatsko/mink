@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/nazarkhatsko/mink/cmd/doc"
+	"github.com/nazarkhatsko/mink/cmd/manual"
 	"github.com/nazarkhatsko/mink/cmd/run"
 	"github.com/nazarkhatsko/mink/cmd/skill"
 	"github.com/nazarkhatsko/mink/cmd/validate"
@@ -35,7 +35,7 @@ func Execute() error {
 	root.AddCommand(
 		run.NewCmd(),
 		validate.NewCmd(),
-		doc.NewCmd(),
+		manual.NewCmd(),
 		skill.NewCmd(),
 		version.NewCmd(),
 	)
