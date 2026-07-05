@@ -21,26 +21,6 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "claude" }
 
-func (d *Driver) Describe() driver.Doc {
-	return driver.Doc{
-		Description: "Send messages to the Claude API",
-		Config: []driver.FieldDoc{
-			{Name: "api_key", Type: "string", Required: true, Description: "Anthropic API key (falls back to ANTHROPIC_API_KEY env var)"},
-			{Name: "model", Type: "string", Required: false, Description: "Model name (default: claude-sonnet-4-6)"},
-		},
-		Options: []driver.FieldDoc{
-			{Name: "messages", Type: "[]object", Required: true, Description: "Conversation messages: [{role, content}]"},
-			{Name: "system", Type: "string", Required: false, Description: "System prompt"},
-			{Name: "max_tokens", Type: "int", Required: false, Description: "Maximum tokens to generate (default: 1024)"},
-			{Name: "temperature", Type: "float", Required: false, Description: "Sampling temperature"},
-		},
-		Output: []driver.FieldDoc{
-			{Name: "in", Type: "object", Description: "Outgoing request: model, messages, system, max_tokens"},
-			{Name: "out", Type: "object", Description: "Parsed response: id, model, role, content, stop_reason, usage"},
-		},
-	}
-}
-
 func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
 	apiKey, _ := options["api_key"].(string)
 	if apiKey == "" {

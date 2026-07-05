@@ -16,23 +16,6 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "shell" }
 
-func (d *Driver) Describe() driver.Doc {
-	return driver.Doc{
-		Description: "Execute a shell command",
-		Options: []driver.FieldDoc{
-			{Name: "command", Type: "string", Required: true, Description: "Shell command to run (via sh -c)"},
-			{Name: "env", Type: "map[string]string", Required: false, Description: "Extra environment variables merged with os.Environ"},
-			{Name: "dir", Type: "string", Required: false, Description: "Working directory (default: current process dir)"},
-		},
-		Output: []driver.FieldDoc{
-			{Name: "exit_code", Type: "int", Description: "Exit code of the process"},
-			{Name: "stdout", Type: "string", Description: "Standard output"},
-			{Name: "stderr", Type: "string", Description: "Standard error"},
-			{Name: "success", Type: "bool", Description: "true if exit_code == 0"},
-		},
-	}
-}
-
 func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
 	command, ok := options["command"]
 	if !ok {

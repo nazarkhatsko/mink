@@ -1,4 +1,4 @@
-package drivers
+package examples
 
 import (
 	"github.com/nazarkhatsko/mink/internal/docutil"
@@ -7,15 +7,15 @@ import (
 
 func NewCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "drivers [name]",
-		Short: "List drivers or show driver documentation",
+		Use:   "examples [name]",
+		Short: "List examples or show example documentation",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			page := "README"
 			if len(args) == 1 {
 				page = args[0]
 			}
-			return docutil.Show("drivers", page)
+			return docutil.Show("examples", page)
 		},
 	}
 }

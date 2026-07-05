@@ -14,18 +14,6 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "sleep" }
 
-func (d *Driver) Describe() driver.Doc {
-	return driver.Doc{
-		Description: "Pause flow execution for N milliseconds",
-		Options: []driver.FieldDoc{
-			{Name: "ms", Type: "int", Required: true, Description: "Duration in milliseconds"},
-		},
-		Output: []driver.FieldDoc{
-			{Name: "slept_ms", Type: "int", Description: "Actual duration slept in milliseconds"},
-		},
-	}
-}
-
 func (d *Driver) Execute(_ context.Context, options map[string]any) (driver.Output, error) {
 	ms, ok := options["ms"]
 	if !ok {

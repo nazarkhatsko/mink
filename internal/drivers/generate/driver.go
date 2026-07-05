@@ -14,18 +14,6 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "generate" }
 
-func (d *Driver) Describe() driver.Doc {
-	return driver.Doc{
-		Description: "Generate fake data from a schema",
-		Options: []driver.FieldDoc{
-			{Name: "schema", Type: "object", Required: true, Description: "Map of field names to faker type strings (e.g. faker.email, faker.uuid) or static values"},
-		},
-		Output: []driver.FieldDoc{
-			{Name: "<field>", Type: "any", Description: "Generated value for each schema field"},
-		},
-	}
-}
-
 func (d *Driver) Execute(_ context.Context, options map[string]any) (driver.Output, error) {
 	raw, ok := options["schema"]
 	if !ok {

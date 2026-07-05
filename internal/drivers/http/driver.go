@@ -18,25 +18,6 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "http" }
 
-func (d *Driver) Describe() driver.Doc {
-	return driver.Doc{
-		Description: "Execute HTTP requests",
-		Config: []driver.FieldDoc{
-			{Name: "timeout", Type: "int", Required: false, Description: "Request timeout in milliseconds (default: no timeout)"},
-		},
-		Options: []driver.FieldDoc{
-			{Name: "method", Type: "string", Required: false, Description: "HTTP method: GET, POST, PUT, PATCH, DELETE (default: GET)"},
-			{Name: "url", Type: "string", Required: true, Description: "Full URL"},
-			{Name: "headers", Type: "object", Required: false, Description: "Request headers"},
-			{Name: "body", Type: "any", Required: false, Description: "Request body, serialized as JSON"},
-		},
-		Output: []driver.FieldDoc{
-			{Name: "req", Type: "object", Description: "Outgoing request: method, url, headers, body"},
-			{Name: "resp", Type: "object", Description: "Incoming response: status, headers, body"},
-		},
-	}
-}
-
 func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
 	method, _ := options["method"].(string)
 	if method == "" {
