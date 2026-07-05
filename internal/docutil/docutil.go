@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nazarkhatsko/mink/doc"
 	"github.com/nazarkhatsko/mink/internal/console"
 	"github.com/nazarkhatsko/mink/internal/render"
+	"github.com/nazarkhatsko/mink/manual"
 )
 
 // Show reads an embedded doc page, renders it, and prints it to stdout.
 func Show(parts ...string) error {
-	content, err := doc.Page(parts...)
+	content, err := manual.Page(parts...)
 	if err != nil {
 		return fmt.Errorf("documentation not found: %s", strings.Join(parts, "/"))
 	}

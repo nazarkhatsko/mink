@@ -52,7 +52,7 @@ instances:
       key: "value"
 ```
 
-Add `doc/drivers/mydriver.md` (config/options/output fields, an example) and list it in `doc/drivers/README.md` — this is the only source for `mink doc drivers mydriver`.
+Add `manual/drivers/mydriver.md` (config/options/output fields, an example) and list it in `manual/drivers/README.md` — this is the only source for `mink doc drivers mydriver`.
 
 ## Branches
 
