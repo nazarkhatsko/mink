@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 )
 
-//go:embed *.md drivers examples
+//go:embed *.md drivers
 var FS embed.FS
 
 // Page reads an embedded doc page, e.g. Page("configuration") or Page("drivers", "http").
