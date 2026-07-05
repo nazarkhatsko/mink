@@ -17,6 +17,9 @@
 - `docs/configuration.md` — documented `timeout`, `mutate_on`, `state`, and new Starlark expression syntax
 - Updated all examples and driver docs to new `${}` syntax
 
+### CLI
+- Renamed embedded skill package `skills/` → `skill/` (`package skills` → `package skill`) to match the `mink skill` command and `internal/skill` package naming
+
 ---
 
 

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/nazarkhatsko/mink/skills"
+	embeddedskill "github.com/nazarkhatsko/mink/skill"
 )
 
 var ErrNotInstalled = errors.New("not installed")
@@ -64,11 +64,11 @@ func resolveTarget(forClaude, forCodex, global bool) (target, platform string, e
 }
 
 func (s *Service) Names() ([]string, error) {
-	return skills.List(s.platform)
+	return embeddedskill.List(s.platform)
 }
 
 func (s *Service) Status(name string) (Status, error) {
-	embedded, err := skills.GetVersion(s.platform, name)
+	embedded, err := embeddedskill.GetVersion(s.platform, name)
 	if err != nil {
 		return 0, err
 	}
@@ -94,11 +94,11 @@ func (s *Service) Install(name string) (bool, error) {
 	if st == StatusUpToDate {
 		return false, nil
 	}
-	content, err := skills.Get(s.platform, name)
+	content, err := embeddedskill.Get(s.platform, name)
 	if err != nil {
 		return false, fmt.Errorf("skill %q not found: %w", name, err)
 	}
-	version, err := skills.GetVersion(s.platform, name)
+	version, err := embeddedskill.GetVersion(s.platform, name)
 	if err != nil {
 		return false, fmt.Errorf("skill %q version not found: %w", name, err)
 	}
