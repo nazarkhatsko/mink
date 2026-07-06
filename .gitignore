@@ -26,7 +26,6 @@ go.work.sum
 
 # Build output
 build/
-order-flow
 
 # env file
 .env

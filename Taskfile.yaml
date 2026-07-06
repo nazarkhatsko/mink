@@ -3,6 +3,7 @@ version: "3"
 vars:
   BUILD_DIR: ./build
   TARGET: "{{.BUILD_DIR}}/mink"
+  TARGET_VERSION: v1.0.0
 
 tasks:
   fmt:
@@ -18,8 +19,8 @@ tasks:
     cmd: golangci-lint run --fix ./...
 
   build:
-    desc: "Build binary to ./build/mink"
-    cmd: go build -ldflags "-X github.com/nazarkhatsko/mink/cmd/version.Version=v1.0.0" -o {{.TARGET}} .
+    desc: "Build binary to {{.TARGET}}"
+    cmd: go build -ldflags "-X github.com/nazarkhatsko/mink/cmd/version.Version={{.TARGET_VERSION}}" -o {{.TARGET}} .
 
   clean:
     desc: "Remove build artifacts"
