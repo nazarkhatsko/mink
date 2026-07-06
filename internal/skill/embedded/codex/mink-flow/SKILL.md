@@ -26,6 +26,7 @@ If anything below conflicts with `mink manual`, trust `mink manual`.
 - Use `check` instance with `driver: validate` for JSON Schema validation
 - Use `sleep` instance with `driver: sleep` when an async delay is needed
 - Use `sh` instance with `driver: shell` for setup/teardown or system-level steps
+- Use `py` instance with `driver: python` for data transformation, hashing/signing, or other logic awkward as a single Starlark expression — print `json.dumps(...)` to get a structured `stdout`
 - Use `llm` instance with `driver: claude` to call the Claude API from a flow
 - HTTP actions must always include `method:` and `url:` in `run_with:`
 - All `${}` expressions are Starlark — use dict access `['key']`, not dot notation
@@ -41,6 +42,7 @@ If anything below conflicts with `mink manual`, trust `mink manual`.
 | `validate` | JSON Schema validation |
 | `sleep` | delay execution |
 | `shell` | shell command execution |
+| `python` | Python code/script execution |
 | `claude` | Claude API messages |
 
 ## Generate field types
@@ -72,6 +74,8 @@ resp:
 **sleep:** `{ slept_ms: int }`
 
 **shell:** `{ exit_code: int, stdout: string, stderr: string, success: bool }` — a non-zero exit code does **not** fail the action, assert on `success` with `validate`
+
+**python:** `{ exit_code: int, stdout: any, stderr: string, success: bool }` — `stdout` is parsed as JSON if valid, otherwise the raw string; a non-zero exit code does **not** fail the action, assert on `success` with `validate`
 
 **claude:**
 ```

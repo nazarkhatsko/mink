@@ -1,0 +1,63 @@
+version: "1.0"
+info:
+  name: "Python driver demo"
+  description: "Demonstrates inline python code and running a .py script as a flow step"
+
+instances:
+  py:
+    driver: python
+
+  check:
+    driver: validate
+
+flows:
+  - name: "inline-code"
+    actions:
+      - id: compute_stats
+        description: "Compute sum/average of a list of numbers in Python"
+        use: py
+        run_with:
+          code: |
+            import json
+            numbers = [4, 8, 15, 16, 23, 42]
+            print(json.dumps({
+                "sum": sum(numbers),
+                "avg": sum(numbers) / len(numbers),
+                "count": len(numbers),
+            }))
+
+      - id: validate_stats
+        description: "Validate Python computed the correct sum"
+        use: check
+        run_with:
+          value: "${actions['compute_stats']['stdout']}"
+          schema:
+            type: object
+            properties:
+              sum:
+                type: integer
+                const: 108
+              count:
+                type: integer
+                const: 6
+
+  - name: "script-file"
+    actions:
+      - id: run_transform
+        description: "Run transform.py with an argument and pick up its JSON result"
+        use: py
+        run_with:
+          script: "examples/python-step/transform.py"
+          args: ["--name", "mink"]
+
+      - id: validate_transform
+        description: "Validate the script's output"
+        use: check
+        run_with:
+          value: "${actions['run_transform']['stdout']}"
+          schema:
+            type: object
+            properties:
+              greeting:
+                type: string
+                const: "Hello, mink!"

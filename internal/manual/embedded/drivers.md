@@ -11,6 +11,7 @@ Drivers are the building blocks of mink flows. Each driver encapsulates interact
 | validate | JSON Schema validation |
 | sleep | Execution delay |
 | shell | Shell command execution |
+| python | Python code/script execution |
 | claude | Claude API messages |
 
 Run `mink manual drivers <name>` for details on a specific driver.

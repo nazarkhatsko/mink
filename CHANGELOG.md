@@ -4,6 +4,7 @@
 
 ### Drivers
 - Added `shell` driver — executes shell commands via `sh -c`; options: `command` (required), `env`, `dir`; output: `exit_code`, `stdout`, `stderr`, `success`
+- Added `python` driver — executes inline Python `code` or an existing `.py` `script`; config: `interpreter` (default `python3`), `env`, `dir`; options: `code`/`script` (exactly one), `args`, `env`, `dir`; output: `exit_code`, `stdout` (parsed as JSON if valid, otherwise raw string), `stderr`, `success`
 
 ### Core
 - Added `timeout` as a top-level action field (milliseconds); applies to any driver via `context.WithTimeout`
@@ -16,6 +17,8 @@
 - `docs/drivers/README.md` — added `shell` to built-in driver table
 - `docs/configuration.md` — documented `timeout`, `mutate_on`, `state`, and new Starlark expression syntax
 - Updated all examples and driver docs to new `${}` syntax
+- `internal/manual/embedded/drivers/python.md` — new driver reference
+- `internal/manual/embedded/drivers.md` — added `python` to built-in driver table
 
 ### CLI
 - Renamed embedded skill package `skills/` → `skill/` (`package skills` → `package skill`) to match the `mink skill` command and `internal/skill` package naming
@@ -24,6 +27,10 @@
 - Renamed skill `generate-flow` → `mink-flow` (installs as `/mink-flow`)
 - Refreshed `mink-flow` content for all changes since v1.0.0: added `claude` and `shell` to available drivers, documented output shape for every driver, added `timeout`, `int()` numeric-ID cast, and the `<name>.mink.yaml` naming convention
 - `mink-flow` now points to `mink manual` as the source of truth if its own rules go stale
+- Added `python` to available drivers and output shapes in `mink-flow` (both `claude` and `codex` variants)
+
+### Examples
+- Added `examples/python-step` — inline `code` and `.py` `script` execution via the `python` driver; no local server needed
 
 ---
 
