@@ -1,4 +1,4 @@
-# Reporters
+# 📡 Reporters
 
 Control output format with the `--reporter` flag:
 
@@ -6,9 +6,18 @@ Control output format with the `--reporter` flag:
 mink run mink.yaml --reporter <name>
 ```
 
-## `pretty` (default)
+📋 **Reporters**
+| Reporter | Description |
+|---|---|
+| `pretty` (default) | Human-readable output with icons, descriptions and timing |
+| `compact` | One line per action, no descriptions |
+| `json` | NDJSON — one JSON object per line, suited to CI pipelines and log aggregators |
+| `silent` | No output; exit code reflects success or failure |
 
-Human-readable output with icons, descriptions and timing.
+## 🎨 pretty
+
+<details>
+<summary>Example output</summary>
 
 ```
 ▶ flow: user-lifecycle
@@ -21,9 +30,12 @@ Human-readable output with icons, descriptions and timing.
 ✓ flow done: user-lifecycle
 ```
 
-## `compact`
+</details>
 
-One line per action, no descriptions.
+## 📎 compact
+
+<details>
+<summary>Example output</summary>
 
 ```
 ▶ user-lifecycle
@@ -33,9 +45,12 @@ One line per action, no descriptions.
 ✓ user-lifecycle
 ```
 
-## `json`
+</details>
 
-NDJSON — one JSON object per line. Suitable for CI pipelines and log aggregators.
+## 🧾 json
+
+<details>
+<summary>Example output</summary>
 
 ```json
 {"type":"flow_start","flow":"user-lifecycle"}
@@ -45,8 +60,9 @@ NDJSON — one JSON object per line. Suitable for CI pipelines and log aggregato
 {"type":"flow_done","flow":"user-lifecycle","state":{"user_id":"0001"}}
 ```
 
-### Event types
+</details>
 
+**Event types**
 | `type` | Fields |
 |---|---|
 | `flow_start` | `flow` |
@@ -56,10 +72,12 @@ NDJSON — one JSON object per line. Suitable for CI pipelines and log aggregato
 
 `state` reflects the flow-level state **after** the action's `mutate_on` script has run, so each event shows the accumulated state at that point in time. On `action_fail` the state includes any mutations made by `mutate_on.fail` before the flow stopped.
 
-## `silent`
+## 🔇 silent
 
 No output. Exit code reflects success or failure.
 
 ```bash
 mink run mink.yaml --reporter silent && echo "ok"
 ```
+
+⬅️ [Back to docs](README.md)

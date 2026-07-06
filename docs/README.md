@@ -1,13 +1,23 @@
-# Documentation
+# 📚 Documentation
 
-Conceptual guides for humans. For configuration reference and drivers, see the technical docs in [manual/](../manual/getting-started.md) or run `mink manual ...` from the CLI.
+Conceptual guides for humans — pick a topic below.
 
-- [Reporters](reporters.md)
-- [Skills](skills.md)
-- [Examples](examples/README.md)
+| | Guide | Description |
+|---|---|---|
+| 🧠 | [Flows & State](flows-and-state.md) | How actions, `state`, and `${}` expressions fit together |
+| 📡 | [Reporters](reporters.md) | Output formats: pretty, compact, json, silent |
+| 🧩 | [Skills](skills.md) | AI assistant skills shipped with mink |
 
-## Technical reference
+See [examples/](../examples/README.md) for runnable example flows.
 
-- [Getting Started](../manual/getting-started.md)
-- [Configuration](../manual/configuration.md)
-- [Drivers](../manual/drivers/README.md)
+---
+
+## 🛠️ Technical reference
+
+For configuration reference and drivers, run `mink manual ...` from the CLI, or browse:
+
+| | Guide | Description |
+|---|---|---|
+| 🚀 | [Getting Started](../manual/getting-started.md) | Install mink and run your first flow |
+| ⚙️ | [Configuration](../manual/configuration.md) | `vars`, `instances`, `flows` reference |
+| 🔌 | [Drivers](../manual/drivers.md) | Built-in driver reference |

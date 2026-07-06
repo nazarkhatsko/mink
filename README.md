@@ -2,8 +2,6 @@
 
 <img src="assets/banner.png" alt="mink banner" width="600" />
 
----
-
 <big>𝒎𝒊𝒏𝒌</big> <sub>𝚟𝟷.𝟶.𝟶</sub>
 
 ---
@@ -13,6 +11,10 @@
 
 ---
 
-[📚 documentation](docs/README.md) · [🧪 examples](examples/README.md) · [📋 changelog](CHANGELOG.md) · [🤝 contributing](CONTRIBUTING.md) · [⚖️ license](LICENSE)
+[📚 Documentation](docs/README.md) · [🧪 Examples](examples/README.md) · [📋 Changelog](CHANGELOG.md) · [🤝 Contributing](CONTRIBUTING.md) · [⚖️ License](LICENSE)
 
 </div>
+
+<br>
+
+<p align="center"><i>Made with ❤️</i></p>
