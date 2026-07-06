@@ -55,8 +55,8 @@ flows:
     actions:
       - id: payload
         description: "Generate user payload"
-        use: gen
-        run_with:
+        instance: gen
+        execute_with:
           schema:
             name:
               type: string

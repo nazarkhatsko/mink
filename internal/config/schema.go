@@ -26,9 +26,9 @@ type Flow struct {
 type Action struct {
 	ID          string         `yaml:"id"`
 	Description string         `yaml:"description"`
-	Use         string         `yaml:"use"`
+	Instance    string         `yaml:"instance"`
 	Timeout     int            `yaml:"timeout"` // ms, 0 = no timeout
-	RunWith     map[string]any `yaml:"run_with"`
+	ExecuteWith map[string]any `yaml:"execute_with"`
 	MutateOn    MutateOn       `yaml:"mutate_on"`
 }
 

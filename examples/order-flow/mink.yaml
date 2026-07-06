@@ -26,8 +26,8 @@ flows:
 
       - id: generate_item_1
         description: "Generate first product name"
-        use: gen
-        run_with:
+        instance: gen
+        execute_with:
           schema:
             name:
               type: string
@@ -35,8 +35,8 @@ flows:
 
       - id: generate_item_2
         description: "Generate second product name"
-        use: gen
-        run_with:
+        instance: gen
+        execute_with:
           schema:
             name:
               type: string
@@ -44,8 +44,8 @@ flows:
 
       - id: generate_item_3
         description: "Generate third product name"
-        use: gen
-        run_with:
+        instance: gen
+        execute_with:
           schema:
             name:
               type: string
@@ -55,8 +55,8 @@ flows:
 
       - id: create_order
         description: "Create a new order and initialise state tracking"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: POST
           url: "${vars['base_url'] + '/orders'}"
           headers:
@@ -73,8 +73,8 @@ flows:
 
       - id: validate_order_created
         description: "Order was created with pending status"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${actions['create_order']['resp']}"
           schema:
             type: object
@@ -101,8 +101,8 @@ flows:
 
       - id: add_item_1
         description: "Add first item; accumulate its ID and name into state"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: POST
           url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/items'}"
           headers:
@@ -124,8 +124,8 @@ flows:
 
       - id: add_item_2
         description: "Add second item; continue accumulating state"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: POST
           url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/items'}"
           headers:
@@ -147,8 +147,8 @@ flows:
 
       - id: add_item_3
         description: "Add third item; also snapshot last_item_id for later"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: POST
           url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/items'}"
           headers:
@@ -171,8 +171,8 @@ flows:
 
       - id: validate_item_count
         description: "State counter must equal 3 after adding three items"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${state['item_count']}"
           schema:
             type: integer
@@ -180,8 +180,8 @@ flows:
 
       - id: validate_item_ids_length
         description: "State list must hold exactly 3 item IDs"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${len(state['item_ids'])}"
           schema:
             type: integer
@@ -191,8 +191,8 @@ flows:
 
       - id: get_order
         description: "GET order to capture server-computed total into state"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: GET
           url: "${vars['base_url'] + '/orders/' + str(state['order_id'])}"
           headers:
@@ -208,8 +208,8 @@ flows:
 
       - id: validate_order_state
         description: "Server item count must match our locally tracked count"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${state['server_item_count']}"
           schema:
             type: integer
@@ -219,8 +219,8 @@ flows:
 
       - id: checkout
         description: "Checkout the order; capture final status into state"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: POST
           url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/checkout'}"
           headers:
@@ -236,8 +236,8 @@ flows:
 
       - id: validate_checkout
         description: "Final status must be completed and total must match server total"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${actions['checkout']['resp']}"
           schema:
             type: object
@@ -265,8 +265,8 @@ flows:
 
       - id: validate_final_state
         description: "State must reflect completed status after checkout"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${state['final_status']}"
           schema:
             type: string

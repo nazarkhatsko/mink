@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Core
+- **Breaking:** action fields renamed for consistency with existing code/doc terminology: `use` → `instance` (matches the `instances:` block it references) and `run_with` → `execute_with` (matches the `Driver.Execute` method it becomes the `options` argument to); updated across config schema, engine, all examples, docs, manual, and both `mink-flow` skills
 - Added `pkg/driver.Error` — drivers now return a classified error (`Code`: `config`, `transport`, `timeout`, or `internal`) instead of a bare `error`; all built-in drivers migrated
 - `mutate_on.done` and `mutate_on.fail` now receive a symmetric `event` object: `event['action_id']`, `event['output']` (present on both, partial/`None` on failure), and `event['error']` (`None` on `done`, `{"code", "message"}` on `fail`) — previously `mutate_on.fail`'s `event['result']` was always `None`, even when the driver returned partial output (e.g. `validate`'s `{valid: false, error: ...}`)
 - **Breaking:** `event['result']` → `event['output']`, `event['action']` → `event['action_id']` in `mutate_on` scripts

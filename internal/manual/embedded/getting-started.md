@@ -25,14 +25,14 @@ flows:
   - name: "ping"
     actions:
       - id: ping
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: GET
           url: "https://httpbin.org/get"
 
       - id: validate
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${actions['ping']['resp']}"
           schema:
             type: object

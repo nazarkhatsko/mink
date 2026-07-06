@@ -53,14 +53,14 @@ flows:
     actions:
       - id: fetch_user
         description: "Fetch a user document by its Firestore path"
-        use: fs
-        run_with:
+        instance: fs
+        execute_with:
           path: "users/abc123"
 
       - id: validate_user
         description: "Validate the user document exists and has the expected fields"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${actions['fetch_user']}"
           schema:
             type: object

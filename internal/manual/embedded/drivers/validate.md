@@ -29,8 +29,8 @@ flows:
     actions:
       - id: validate_response
         description: "Validate API response"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${actions.create_user.resp.body}"
           schema:
             type: object
@@ -50,8 +50,8 @@ flows:
 ```yaml
 - id: validate_status
   description: "Assert 201 Created"
-  use: check
-  run_with:
+  instance: check
+  execute_with:
     value: "${actions.create_user.resp}"
     schema:
       type: object

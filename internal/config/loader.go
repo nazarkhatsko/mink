@@ -37,11 +37,11 @@ func validate(cfg *Config) error {
 			if action.ID == "" {
 				return fmt.Errorf("action id is required in flow %q", flow.Name)
 			}
-			if action.Use == "" {
-				return fmt.Errorf("action %q: use is required", action.ID)
+			if action.Instance == "" {
+				return fmt.Errorf("action %q: instance is required", action.ID)
 			}
-			if _, ok := cfg.Instances[action.Use]; !ok {
-				return fmt.Errorf("action %q: instance %q not found", action.ID, action.Use)
+			if _, ok := cfg.Instances[action.Instance]; !ok {
+				return fmt.Errorf("action %q: instance %q not found", action.ID, action.Instance)
 			}
 		}
 	}

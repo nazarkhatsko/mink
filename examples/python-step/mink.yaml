@@ -15,8 +15,8 @@ flows:
     actions:
       - id: compute_stats
         description: "Compute sum/average of a list of numbers in Python"
-        use: py
-        run_with:
+        instance: py
+        execute_with:
           code: |
             import json
             numbers = [4, 8, 15, 16, 23, 42]
@@ -28,8 +28,8 @@ flows:
 
       - id: validate_stats
         description: "Validate Python computed the correct sum"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${actions['compute_stats']['stdout']}"
           schema:
             type: object
@@ -45,15 +45,15 @@ flows:
     actions:
       - id: run_transform
         description: "Run transform.py with an argument and pick up its JSON result"
-        use: py
-        run_with:
+        instance: py
+        execute_with:
           script: "examples/python-step/transform.py"
           args: ["--name", "mink"]
 
       - id: validate_transform
         description: "Validate the script's output"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${actions['run_transform']['stdout']}"
           schema:
             type: object

@@ -8,8 +8,8 @@ Every action either succeeds or fails. Either way, `mutate_on` sees the same `ev
 
 ```yaml
 - id: create_order
-  use: api
-  run_with:
+  instance: api
+  execute_with:
     method: POST
     url: "${vars['base_url'] + '/orders'}"
   mutate_on:

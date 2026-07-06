@@ -55,8 +55,8 @@ flows:
     actions:
       - id: create_user
         description: "POST new user"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: POST
           url: "${vars['base_url'] + '/users'}"
           headers:

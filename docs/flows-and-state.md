@@ -25,8 +25,8 @@ The difference: `actions` is automatic and read-only; `state` is opt-in and muta
 
 ```yaml
 - id: login
-  use: api
-  run_with:
+  instance: api
+  execute_with:
     method: POST
     url: "${vars['base_url'] + '/auth'}"
   mutate_on:

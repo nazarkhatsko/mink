@@ -9,9 +9,9 @@ import (
 )
 
 func (e *engine) executeAction(ctx context.Context, execCtx *Context, action config.Action, instance config.Instance) (driver.Output, time.Duration, error) {
-	resolved, err := execCtx.resolver.ResolveMap(action.RunWith)
+	resolved, err := execCtx.resolver.ResolveMap(action.ExecuteWith)
 	if err != nil {
-		return nil, 0, driver.Wrap(driver.ErrConfig, err, "resolve run_with: %v", err)
+		return nil, 0, driver.Wrap(driver.ErrConfig, err, "resolve execute_with: %v", err)
 	}
 
 	merged := make(map[string]any, len(instance.Config)+len(resolved))

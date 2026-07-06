@@ -15,8 +15,8 @@ flows:
     actions:
       - id: missing_url
         description: "http driver called without the required url option"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: GET
         mutate_on:
           fail: |
@@ -27,8 +27,8 @@ flows:
     actions:
       - id: connection_refused
         description: "nothing listens on port 1, so the TCP connect is refused immediately"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: GET
           url: "http://127.0.0.1:1/"
         mutate_on:
@@ -40,9 +40,9 @@ flows:
     actions:
       - id: unroutable_host
         description: "10.255.255.1 is unroutable, so the 200ms action timeout fires first"
-        use: api
+        instance: api
         timeout: 200
-        run_with:
+        execute_with:
           method: GET
           url: "http://10.255.255.1/"
         mutate_on:
@@ -54,8 +54,8 @@ flows:
     actions:
       - id: schema_mismatch
         description: "value deliberately doesn't match the schema — this is what 'internal' means for validate: not a broken flow, a failed assertion"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value:
             status: "ok"
           schema:

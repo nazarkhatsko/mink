@@ -89,8 +89,8 @@ flows:
     actions:
       - id: generate_user
         description: "Generate random payload"
-        use: gen
-        run_with:
+        instance: gen
+        execute_with:
           schema:
             name:
               type: string
@@ -110,9 +110,9 @@ flows:
 |---|---|---|
 | `id` | string | Unique action identifier within the flow |
 | `description` | string | Human-readable description |
-| `use` | string | Instance name from `instances` |
+| `instance` | string | Instance name from `instances` |
 | `timeout` | int | Timeout in milliseconds; cancels the action if exceeded (0 = no timeout) |
-| `run_with` | object | Driver-specific options, merged over instance `config` |
+| `execute_with` | object | Driver-specific options, merged over instance `config` |
 | `mutate_on.done` | string | Starlark script executed after successful action; has access to `event['output']` |
 | `mutate_on.fail` | string | Starlark script executed on failure; has access to `event['output']` (partial, if any) and `event['error']`; flow still stops |
 
@@ -148,8 +148,8 @@ Starlark scripts that run after an action to update `state`. The `state` dict is
 
 ```yaml
 - id: login
-  use: api
-  run_with:
+  instance: api
+  execute_with:
     method: POST
     url: "${vars['base_url'] + '/auth'}"
   mutate_on:
@@ -204,7 +204,7 @@ Without the `int()` cast, `str(1.0)` produces `"1.0"` and the URL will not match
 
 ## Merge rules
 
-When an action uses an instance with `config`, the action's `run_with` is **shallow merged** on top of `config`. Fields in `run_with` override the same fields in `config`.
+When an action uses an instance with `config`, the action's `execute_with` is **shallow merged** on top of `config`. Fields in `execute_with` override the same fields in `config`.
 
 ```yaml
 instances:
@@ -218,8 +218,8 @@ flows:
   - name: "example"
     actions:
       - id: create
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: POST           # merged on top
           url: "https://..."
 ```

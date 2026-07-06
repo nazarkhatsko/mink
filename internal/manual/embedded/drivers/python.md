@@ -59,8 +59,8 @@ flows:
     actions:
       - id: compute_signature
         description: "Compute an HMAC signature in Python and return it as structured data"
-        use: py
-        run_with:
+        instance: py
+        execute_with:
           code: |
             import hashlib, hmac, json, os
 
@@ -74,8 +74,8 @@ flows:
 
       - id: validate_signature
         description: "Assert the script produced a signature"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${actions['compute_signature']}"
           schema:
             type: object

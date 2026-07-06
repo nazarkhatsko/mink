@@ -17,7 +17,7 @@ If anything below conflicts with `mink manual`, trust `mink manual`.
 
 - Always start with `version: "1.0"` and `info:` block
 - Define all required drivers in `instances:` before using them in `flows:`
-- Every action must have `id:`, `description:`, `use:`, and `run_with:`
+- Every action must have `id:`, `description:`, `instance:`, and `execute_with:`
 - Add `timeout:` (milliseconds) on an action when it may hang (shell commands, slow endpoints)
 - Use `${vars['key']}` for reusable values, `${env['KEY']}` for secrets
 - Reference previous action outputs via `${actions['id']['field']}`
@@ -28,7 +28,7 @@ If anything below conflicts with `mink manual`, trust `mink manual`.
 - Use `sh` instance with `driver: shell` for setup/teardown or system-level steps
 - Use `py` instance with `driver: python` for data transformation, hashing/signing, or other logic awkward as a single Starlark expression — print `json.dumps(...)` to get a structured `stdout`
 - Use `llm` instance with `driver: claude` to call the Claude API from a flow
-- HTTP actions must always include `method:` and `url:` in `run_with:`
+- HTTP actions must always include `method:` and `url:` in `execute_with:`
 - All `${}` expressions are Starlark — use dict access `['key']`, not dot notation
 - JSON numbers decode as `float64`; cast IDs with `int(...)` in `mutate_on` before interpolating them into a URL or string, or you'll get `"1.0"` instead of `"1"`
 - Name the file `mink.yaml` for a single-suite project; for multiple suites use `<name>.mink.yaml` (e.g. `smoke.mink.yaml`)
@@ -119,8 +119,8 @@ flows:
     actions:
       - id: generate_user
         description: "Generate random user payload"
-        use: gen
-        run_with:
+        instance: gen
+        execute_with:
           schema:
             name:
               type: string
@@ -131,8 +131,8 @@ flows:
 
       - id: create_user
         description: "POST user to API"
-        use: api
-        run_with:
+        instance: api
+        execute_with:
           method: POST
           url: "${vars['base_url'] + '/users'}"
           body: "${actions['generate_user']}"
@@ -142,8 +142,8 @@ flows:
 
       - id: validate_response
         description: "Validate response contains id"
-        use: check
-        run_with:
+        instance: check
+        execute_with:
           value: "${actions['create_user']['resp']['body']}"
           schema:
             type: object

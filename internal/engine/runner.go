@@ -54,9 +54,9 @@ func (e *engine) runFlow(ctx context.Context, flow config.Flow) error {
 	execCtx := newContext(resolvedVars, actions, state)
 
 	for _, action := range flow.Actions {
-		instance, ok := e.cfg.Instances[action.Use]
+		instance, ok := e.cfg.Instances[action.Instance]
 		if !ok {
-			return fmt.Errorf("instance %q not found", action.Use)
+			return fmt.Errorf("instance %q not found", action.Instance)
 		}
 
 		e.reporter.ActionStart(action.ID, action.Description)
