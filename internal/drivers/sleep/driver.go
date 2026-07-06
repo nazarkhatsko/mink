@@ -2,7 +2,6 @@ package sleep
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/nazarkhatsko/mink/pkg/driver"
@@ -17,7 +16,7 @@ func (d *Driver) Name() string { return "sleep" }
 func (d *Driver) Execute(_ context.Context, options map[string]any) (driver.Output, error) {
 	ms, ok := options["ms"]
 	if !ok {
-		return nil, fmt.Errorf("sleep: ms is required")
+		return nil, driver.NewError(driver.ErrConfig, "sleep: ms is required")
 	}
 
 	var duration time.Duration
@@ -29,7 +28,7 @@ func (d *Driver) Execute(_ context.Context, options map[string]any) (driver.Outp
 	case float64:
 		duration = time.Duration(v) * time.Millisecond
 	default:
-		return nil, fmt.Errorf("sleep: ms must be a number, got %T", ms)
+		return nil, driver.NewError(driver.ErrConfig, "sleep: ms must be a number, got %T", ms)
 	}
 
 	time.Sleep(duration)

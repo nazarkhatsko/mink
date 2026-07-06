@@ -27,21 +27,21 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 
 	url, _ := options["url"].(string)
 	if url == "" {
-		return nil, fmt.Errorf("http: url is required")
+		return nil, driver.NewError(driver.ErrConfig, "http: url is required")
 	}
 
 	var bodyReader io.Reader
 	if body, ok := options["body"]; ok && body != nil {
 		b, err := json.Marshal(body)
 		if err != nil {
-			return nil, fmt.Errorf("http: marshal body: %w", err)
+			return nil, driver.Wrap(driver.ErrConfig, err, "http: marshal body: %v", err)
 		}
 		bodyReader = bytes.NewReader(b)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
 	if err != nil {
-		return nil, fmt.Errorf("http: create request: %w", err)
+		return nil, driver.Wrap(driver.ErrConfig, err, "http: create request: %v", err)
 	}
 
 	if bodyReader != nil {
@@ -56,13 +56,13 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("http: do request: %w", err)
+		return nil, driver.Wrap(driver.ErrTransport, err, "http: do request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	respBodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("http: read response: %w", err)
+		return nil, driver.Wrap(driver.ErrTransport, err, "http: read response: %v", err)
 	}
 
 	respHeaders := make(map[string]any, len(resp.Header))

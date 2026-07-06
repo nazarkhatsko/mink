@@ -17,12 +17,12 @@ func (d *Driver) Name() string { return "generate" }
 func (d *Driver) Execute(_ context.Context, options map[string]any) (driver.Output, error) {
 	raw, ok := options["schema"]
 	if !ok {
-		return nil, fmt.Errorf("generate: schema is required")
+		return nil, driver.NewError(driver.ErrConfig, "generate: schema is required")
 	}
 
 	schema, ok := raw.(map[string]any)
 	if !ok {
-		return nil, fmt.Errorf("generate: schema must be an object")
+		return nil, driver.NewError(driver.ErrConfig, "generate: schema must be an object")
 	}
 
 	result, err := buildObject(schema)
@@ -38,7 +38,7 @@ func buildObject(schema map[string]any) (map[string]any, error) {
 	for key, raw := range schema {
 		field, ok := raw.(map[string]any)
 		if !ok {
-			return nil, fmt.Errorf("generate: field %q must be an object with type and value", key)
+			return nil, driver.NewError(driver.ErrConfig, "generate: field %q must be an object with type and value", key)
 		}
 
 		// вкладений обʼєкт без type/value — рекурсія
@@ -47,7 +47,7 @@ func buildObject(schema map[string]any) (map[string]any, error) {
 		if !hasType && !hasValue {
 			nested, err := buildObject(field)
 			if err != nil {
-				return nil, fmt.Errorf("generate: field %q: %w", key, err)
+				return nil, driver.Wrap(driver.ErrConfig, err, "generate: field %q: %v", key, err)
 			}
 			out[key] = nested
 			continue
@@ -80,7 +80,7 @@ func generateField(key string, field map[string]any) (any, error) {
 		case float64:
 			return int64(v), nil
 		default:
-			return nil, fmt.Errorf("generate: field %q: cannot cast %T to int", key, raw)
+			return nil, driver.NewError(driver.ErrConfig, "generate: field %q: cannot cast %T to int", key, raw)
 		}
 	case "float":
 		switch v := raw.(type) {
@@ -89,16 +89,16 @@ func generateField(key string, field map[string]any) (any, error) {
 		case int:
 			return float64(v), nil
 		default:
-			return nil, fmt.Errorf("generate: field %q: cannot cast %T to float", key, raw)
+			return nil, driver.NewError(driver.ErrConfig, "generate: field %q: cannot cast %T to float", key, raw)
 		}
 	case "bool":
 		b, ok := raw.(bool)
 		if !ok {
-			return nil, fmt.Errorf("generate: field %q: cannot cast %T to bool", key, raw)
+			return nil, driver.NewError(driver.ErrConfig, "generate: field %q: cannot cast %T to bool", key, raw)
 		}
 		return b, nil
 	default:
-		return nil, fmt.Errorf("generate: field %q: unknown type %q", key, typ)
+		return nil, driver.NewError(driver.ErrConfig, "generate: field %q: unknown type %q", key, typ)
 	}
 }
 

@@ -2,7 +2,6 @@ package firestore
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strings"
 	"sync"
@@ -29,7 +28,7 @@ func (d *Driver) Name() string { return "firestore" }
 func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
 	projectID, _ := options["project_id"].(string)
 	if projectID == "" {
-		return nil, fmt.Errorf("firestore: project_id is required")
+		return nil, driver.NewError(driver.ErrConfig, "firestore: project_id is required")
 	}
 
 	credentialsFile, _ := options["credentials_file"].(string)
@@ -37,7 +36,7 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 		credentialsFile = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 	}
 	if credentialsFile == "" {
-		return nil, fmt.Errorf("firestore: credentials_file is required")
+		return nil, driver.NewError(driver.ErrConfig, "firestore: credentials_file is required")
 	}
 
 	databaseID, _ := options["database_id"].(string)
@@ -47,15 +46,15 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 
 	path, _ := options["path"].(string)
 	if path == "" {
-		return nil, fmt.Errorf("firestore: path is required")
+		return nil, driver.NewError(driver.ErrConfig, "firestore: path is required")
 	}
 	if !isValidDocPath(path) {
-		return nil, fmt.Errorf("firestore: path %q must have an even number of non-empty segments (collection/doc/collection/doc/...)", path)
+		return nil, driver.NewError(driver.ErrConfig, "firestore: path %q must have an even number of non-empty segments (collection/doc/collection/doc/...)", path)
 	}
 
 	client, err := d.client(ctx, projectID, databaseID, credentialsFile)
 	if err != nil {
-		return nil, fmt.Errorf("firestore: create client: %w", err)
+		return nil, driver.Wrap(driver.ErrTransport, err, "firestore: create client: %v", err)
 	}
 
 	docSnap, err := client.Doc(path).Get(ctx)
@@ -63,7 +62,7 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 		if status.Code(err) == codes.NotFound {
 			return driver.Output{"doc": nil, "exists": false}, nil
 		}
-		return nil, fmt.Errorf("firestore: get document: %w", err)
+		return nil, driver.Wrap(driver.ErrTransport, err, "firestore: get document: %v", err)
 	}
 
 	return driver.Output{

@@ -31,12 +31,13 @@ The difference: `actions` is automatic and read-only; `state` is opt-in and muta
     url: "${vars['base_url'] + '/auth'}"
   mutate_on:
     done: |
-      state["token"] = event["result"]["resp"]["body"]["token"]
+      state["token"] = event["output"]["resp"]["body"]["token"]
     fail: |
-      state["failed_action"] = event["action"]
+      state["failed_action"] = event["action_id"]
+      state["failed_code"]   = event["error"]["code"]
 ```
 
-`done` runs on success, `fail` runs on failure (and can't stop the flow from halting). Anything you write to `state` here is readable by every later action.
+`done` runs on success, `fail` runs on failure (and can't stop the flow from halting). Both scripts see the same `event` shape — `event['output']` is the driver's output either way (partial on failure, if the driver returned one), and `event['error']` is only non-null on failure (check `event['error'] == None` to tell them apart). See [manual/configuration](../internal/manual/embedded/configuration.md#mutate_on) for the full `event` field reference. Anything you write to `state` here is readable by every later action.
 
 ## 📖 Reading it back
 

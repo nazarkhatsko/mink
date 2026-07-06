@@ -9,6 +9,7 @@ import (
 	"github.com/nazarkhatsko/mink/internal/config"
 	"github.com/nazarkhatsko/mink/internal/report"
 	"github.com/nazarkhatsko/mink/internal/vars"
+	"github.com/nazarkhatsko/mink/pkg/driver"
 )
 
 type engine struct {
@@ -63,27 +64,18 @@ func (e *engine) runFlow(ctx context.Context, flow config.Flow) error {
 		output, duration, err := e.executeAction(ctx, execCtx, action, instance)
 		if err != nil {
 			if action.MutateOn.Fail != "" {
-				event := map[string]any{
-					"action": action.ID,
-					"result": nil,
-					"error":  map[string]any{"message": err.Error()},
-				}
-				_ = execCtx.resolver.ExecMutateOn(action.MutateOn.Fail, event)
+				_ = execCtx.resolver.ExecMutateOn(action.MutateOn.Fail, buildEvent(action.ID, output, err))
 			}
-			e.reporter.ActionFail(action.ID, err, duration, execCtx.resolver.State)
+			e.reporter.ActionFail(action.ID, output, err, duration, execCtx.resolver.State)
 			return fmt.Errorf("action %q: %w", action.ID, err)
 		}
 
 		actions[action.ID] = map[string]any(output)
 
 		if action.MutateOn.Done != "" {
-			event := map[string]any{
-				"action": action.ID,
-				"result": map[string]any(output),
-				"error":  nil,
-			}
-			if err := execCtx.resolver.ExecMutateOn(action.MutateOn.Done, event); err != nil {
-				e.reporter.ActionFail(action.ID, fmt.Errorf("mutate_on.done: %w", err), duration, execCtx.resolver.State)
+			if err := execCtx.resolver.ExecMutateOn(action.MutateOn.Done, buildEvent(action.ID, output, nil)); err != nil {
+				mutateErr := fmt.Errorf("mutate_on.done: %w", err)
+				e.reporter.ActionFail(action.ID, output, mutateErr, duration, execCtx.resolver.State)
 				return fmt.Errorf("action %q mutate_on.done: %w", action.ID, err)
 			}
 		}
@@ -93,4 +85,21 @@ func (e *engine) runFlow(ctx context.Context, flow config.Flow) error {
 
 	e.reporter.FlowDone(flow.Name, execCtx.resolver.State)
 	return nil
+}
+
+// buildEvent builds the object passed to mutate_on.done/mutate_on.fail
+// scripts as `event`. Its shape is identical on both paths — output is always
+// the driver's (possibly partial) output, error is nil unless err != nil —
+// so a fail script can inspect what the driver actually returned. Check
+// `event['error'] == None` to tell done from fail.
+func buildEvent(actionID string, output driver.Output, err error) map[string]any {
+	event := map[string]any{
+		"action_id": actionID,
+		"output":    map[string]any(output),
+		"error":     nil,
+	}
+	if err != nil {
+		event["error"] = driver.Classify(err)
+	}
+	return event
 }

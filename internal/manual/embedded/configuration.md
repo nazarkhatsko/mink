@@ -113,8 +113,8 @@ flows:
 | `use` | string | Instance name from `instances` |
 | `timeout` | int | Timeout in milliseconds; cancels the action if exceeded (0 = no timeout) |
 | `run_with` | object | Driver-specific options, merged over instance `config` |
-| `mutate_on.done` | string | Starlark script executed after successful action; has access to `event['result']` |
-| `mutate_on.fail` | string | Starlark script executed on failure; has access to `event['error']`; flow still stops |
+| `mutate_on.done` | string | Starlark script executed after successful action; has access to `event['output']` |
+| `mutate_on.fail` | string | Starlark script executed on failure; has access to `event['output']` (partial, if any) and `event['error']`; flow still stops |
 
 ## Variable resolution
 
@@ -154,21 +154,26 @@ Starlark scripts that run after an action to update `state`. The `state` dict is
     url: "${vars['base_url'] + '/auth'}"
   mutate_on:
     done: |
-      body = event["result"]["resp"]["body"]
+      body = event["output"]["resp"]["body"]
       state["token"]   = body["token"]
       state["user_id"] = body["data"]["id"]
     fail: |
-      state["failed_action"] = event["action"]
+      state["failed_action"] = event["action_id"]
+      state["failed_code"]   = event["error"]["code"]
       state["failed_error"]  = event["error"]["message"]
 ```
 
 ### `event` object
 
+`done` and `fail` receive the same shape — only `error` differs. Check `event['error'] == None` to tell them apart.
+
 | Field | Available in | Description |
 |---|---|---|
-| `event['action']` | `done`, `fail` | ID of the current action |
-| `event['result']` | `done` | Full driver output (same as `actions['id']`) |
-| `event['error']` | `fail` | `{"message": "..."}` |
+| `event['action_id']` | `done`, `fail` | ID of the current action |
+| `event['output']` | `done`, `fail` | Driver output (same as `actions['id']`); on `fail` this is whatever partial output the driver returned, or `None` if it returned none |
+| `event['error']` | `fail` | `{"code": "...", "message": "..."}`; `None` on `done` |
+
+`event['error']['code']` is one of `config` (bad/missing option from the flow), `transport` (the external call/process failed), `timeout` (the action's `timeout` was exceeded), or `internal` (anything else) — branch on this instead of parsing `message`.
 
 `mutate_on.fail` always runs before the flow stops — it cannot prevent termination.
 
@@ -179,7 +184,7 @@ JSON numbers are always decoded as `float64` in Go. When you store an ID from a 
 ```yaml
 mutate_on:
   done: |
-    state["order_id"] = int(event["result"]["resp"]["body"]["data"]["id"])
+    state["order_id"] = int(event["output"]["resp"]["body"]["data"]["id"])
 ```
 
 ```yaml

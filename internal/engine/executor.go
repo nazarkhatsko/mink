@@ -2,7 +2,6 @@ package engine
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/nazarkhatsko/mink/internal/config"
@@ -12,7 +11,7 @@ import (
 func (e *engine) executeAction(ctx context.Context, execCtx *Context, action config.Action, instance config.Instance) (driver.Output, time.Duration, error) {
 	resolved, err := execCtx.resolver.ResolveMap(action.RunWith)
 	if err != nil {
-		return nil, 0, fmt.Errorf("resolve run_with: %w", err)
+		return nil, 0, driver.Wrap(driver.ErrConfig, err, "resolve run_with: %v", err)
 	}
 
 	merged := make(map[string]any, len(instance.Config)+len(resolved))
@@ -25,7 +24,7 @@ func (e *engine) executeAction(ctx context.Context, execCtx *Context, action con
 
 	d, err := driver.Get(instance.Driver)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, driver.Wrap(driver.ErrConfig, err, "%v", err)
 	}
 
 	driverCtx := ctx

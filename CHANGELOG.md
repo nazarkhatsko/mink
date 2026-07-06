@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Core
+- Added `pkg/driver.Error` — drivers now return a classified error (`Code`: `config`, `transport`, `timeout`, or `internal`) instead of a bare `error`; all built-in drivers migrated
+- `mutate_on.done` and `mutate_on.fail` now receive a symmetric `event` object: `event['action_id']`, `event['output']` (present on both, partial/`None` on failure), and `event['error']` (`None` on `done`, `{"code", "message"}` on `fail`) — previously `mutate_on.fail`'s `event['result']` was always `None`, even when the driver returned partial output (e.g. `validate`'s `{valid: false, error: ...}`)
+- **Breaking:** `event['result']` → `event['output']`, `event['action']` → `event['action_id']` in `mutate_on` scripts
+- **Breaking:** JSON reporter's `action` field renamed to `action_id`, `result` renamed to `output`, and `action_fail`'s `error` is now an object `{"code", "message"}` instead of a plain string; `action_fail` also gains `output` (the driver's partial output, if any)
+
 ### Drivers
 - Added `shell` driver — executes shell commands via `sh -c`; options: `command` (required), `env`, `dir`; output: `exit_code`, `stdout`, `stderr`, `success`
 - Added `python` driver — executes inline Python `code` or an existing `.py` `script`; config: `interpreter` (default `python3`), `env`, `dir`; options: `code`/`script` (exactly one), `args`, `env`, `dir`; output: `exit_code`, `stdout` (parsed as JSON if valid, otherwise raw string), `stderr`, `success`

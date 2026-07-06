@@ -19,11 +19,11 @@ func (d *Driver) Name() string { return "shell" }
 func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
 	command, ok := options["command"]
 	if !ok {
-		return nil, fmt.Errorf("shell: command is required")
+		return nil, driver.NewError(driver.ErrConfig, "shell: command is required")
 	}
 	cmd, ok := command.(string)
 	if !ok {
-		return nil, fmt.Errorf("shell: command must be a string, got %T", command)
+		return nil, driver.NewError(driver.ErrConfig, "shell: command must be a string, got %T", command)
 	}
 
 	c := exec.CommandContext(ctx, "sh", "-c", cmd)
@@ -59,7 +59,7 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			exitCode = exitErr.ExitCode()
 		} else {
-			return nil, fmt.Errorf("shell: %w", err)
+			return nil, driver.Wrap(driver.ErrTransport, err, "shell: %v", err)
 		}
 	}
 

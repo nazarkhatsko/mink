@@ -29,10 +29,16 @@ type MyDriver struct{}
 func (d *MyDriver) Name() string { return "mydriver" }
 
 func (d *MyDriver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
-    // ...
+    key, ok := options["key"].(string)
+    if !ok {
+        return nil, driver.NewError(driver.ErrConfig, "mydriver: key is required")
+    }
+    // ... call out to whatever mydriver wraps ...
     return driver.Output{"result": "ok"}, nil
 }
 ```
+
+Return errors via `driver.NewError`/`driver.Wrap` instead of a bare `fmt.Errorf`, so `mutate_on.fail`'s `event['error']['code']` is meaningful. Pick the code by what actually failed: `driver.ErrConfig` for a missing/invalid option, `driver.ErrTransport` for a failed external call/process (use `driver.Wrap` to keep the original error reachable via `errors.Is`/`errors.As`), `driver.ErrInternal` for anything else (marshaling, parsing). `driver.ErrTimeout` is applied automatically by the engine when `ctx`'s deadline is exceeded — don't set it yourself.
 
 Register it before running:
 

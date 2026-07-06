@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -27,7 +26,7 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 		apiKey = os.Getenv("ANTHROPIC_API_KEY")
 	}
 	if apiKey == "" {
-		return nil, fmt.Errorf("claude: api_key is required")
+		return nil, driver.NewError(driver.ErrConfig, "claude: api_key is required")
 	}
 
 	model, _ := options["model"].(string)
@@ -37,7 +36,7 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 
 	messages, ok := options["messages"]
 	if !ok {
-		return nil, fmt.Errorf("claude: messages is required")
+		return nil, driver.NewError(driver.ErrConfig, "claude: messages is required")
 	}
 
 	maxTokens := 1024
@@ -62,12 +61,12 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 
 	bodyBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("claude: marshal request: %w", err)
+		return nil, driver.Wrap(driver.ErrInternal, err, "claude: marshal request: %v", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, apiURL, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, fmt.Errorf("claude: create request: %w", err)
+		return nil, driver.Wrap(driver.ErrInternal, err, "claude: create request: %v", err)
 	}
 	req.Header.Set("content-type", "application/json")
 	req.Header.Set("x-api-key", apiKey)
@@ -75,13 +74,13 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("claude: do request: %w", err)
+		return nil, driver.Wrap(driver.ErrTransport, err, "claude: do request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("claude: read response: %w", err)
+		return nil, driver.Wrap(driver.ErrTransport, err, "claude: read response: %v", err)
 	}
 
 	var parsed struct {
@@ -103,11 +102,11 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 		} `json:"error"`
 	}
 	if err := json.Unmarshal(respBytes, &parsed); err != nil {
-		return nil, fmt.Errorf("claude: unmarshal response: %w", err)
+		return nil, driver.Wrap(driver.ErrInternal, err, "claude: unmarshal response: %v", err)
 	}
 
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("claude: api error (%d): %s", resp.StatusCode, parsed.Error.Message)
+		return nil, driver.NewError(driver.ErrTransport, "claude: api error (%d): %s", resp.StatusCode, parsed.Error.Message)
 	}
 
 	var text strings.Builder

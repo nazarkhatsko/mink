@@ -67,7 +67,7 @@ flows:
           body: "${actions['generate_user']}"
         mutate_on:
           done: |
-            state["user_id"] = event["result"]["resp"]["body"]["data"]["id"]
+            state["user_id"] = event["output"]["resp"]["body"]["data"]["id"]
 
       - id: validate_created
         description: "Validate create response shape"

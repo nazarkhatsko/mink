@@ -32,23 +32,23 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 		hasScript = false
 	}
 	if hasCode == hasScript {
-		return nil, fmt.Errorf("python: exactly one of code or script is required")
+		return nil, driver.NewError(driver.ErrConfig, "python: exactly one of code or script is required")
 	}
 
 	scriptPath := script
 	if hasCode {
 		tmp, err := os.CreateTemp("", "mink-py-*.py")
 		if err != nil {
-			return nil, fmt.Errorf("python: create temp script: %w", err)
+			return nil, driver.Wrap(driver.ErrInternal, err, "python: create temp script: %v", err)
 		}
 		defer os.Remove(tmp.Name())
 
 		if _, err := tmp.WriteString(code); err != nil {
 			tmp.Close()
-			return nil, fmt.Errorf("python: write temp script: %w", err)
+			return nil, driver.Wrap(driver.ErrInternal, err, "python: write temp script: %v", err)
 		}
 		if err := tmp.Close(); err != nil {
-			return nil, fmt.Errorf("python: close temp script: %w", err)
+			return nil, driver.Wrap(driver.ErrInternal, err, "python: close temp script: %v", err)
 		}
 		scriptPath = tmp.Name()
 	}
@@ -57,7 +57,7 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 	if raw, ok := options["args"]; ok {
 		list, ok := raw.([]any)
 		if !ok {
-			return nil, fmt.Errorf("python: args must be a list")
+			return nil, driver.NewError(driver.ErrConfig, "python: args must be a list")
 		}
 		for _, v := range list {
 			args = append(args, fmt.Sprintf("%v", v))
@@ -98,7 +98,7 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			exitCode = exitErr.ExitCode()
 		} else {
-			return nil, fmt.Errorf("python: %w", err)
+			return nil, driver.Wrap(driver.ErrTransport, err, "python: %v", err)
 		}
 	}
 

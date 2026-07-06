@@ -25,6 +25,6 @@ func (r *Compact) ActionDone(id string, _ driver.Output, duration time.Duration,
 	console.Printlnf("  ✓ %s (%dms)", id, duration.Milliseconds())
 }
 
-func (r *Compact) ActionFail(id string, err error, duration time.Duration, _ map[string]any) {
+func (r *Compact) ActionFail(id string, _ driver.Output, err error, duration time.Duration, _ map[string]any) {
 	console.Printlnf("  ✗ %s (%dms): %s", id, duration.Milliseconds(), err)
 }

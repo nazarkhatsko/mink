@@ -69,7 +69,7 @@ resp:
 
 **generate:** returns the generated object directly
 
-**validate:** `{ valid: true }` on success; on failure the action errors and the flow stops — no output is produced
+**validate:** `{ valid: true }` on success; on failure the action errors and the flow stops — `actions['id']` is never populated, but `mutate_on.fail`'s `event['output']` still gets `{ valid: false, error: "..." }`
 
 **sleep:** `{ slept_ms: int }`
 
@@ -138,7 +138,7 @@ flows:
           body: "${actions['generate_user']}"
         mutate_on:
           done: |
-            state["user_id"] = int(event["result"]["resp"]["body"]["id"])
+            state["user_id"] = int(event["output"]["resp"]["body"]["id"])
 
       - id: validate_response
         description: "Validate response contains id"

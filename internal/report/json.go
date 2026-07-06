@@ -29,20 +29,21 @@ func (r *JSON) ActionDone(id string, output driver.Output, duration time.Duratio
 	r.write(map[string]any{
 		"type":        "action_done",
 		"flow":        r.flow,
-		"action":      id,
+		"action_id":   id,
 		"duration_ms": duration.Milliseconds(),
-		"result":      output,
+		"output":      output,
 		"state":       state,
 	})
 }
 
-func (r *JSON) ActionFail(id string, err error, duration time.Duration, state map[string]any) {
+func (r *JSON) ActionFail(id string, output driver.Output, err error, duration time.Duration, state map[string]any) {
 	r.write(map[string]any{
 		"type":        "action_fail",
 		"flow":        r.flow,
-		"action":      id,
+		"action_id":   id,
 		"duration_ms": duration.Milliseconds(),
-		"error":       err.Error(),
+		"output":      output,
+		"error":       driver.Classify(err),
 		"state":       state,
 	})
 }

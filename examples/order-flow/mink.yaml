@@ -63,12 +63,12 @@ flows:
             X-Api-Key: "${vars['api_key']}"
         mutate_on:
           done: |
-            state["order_id"]    = int(event["result"]["resp"]["body"]["data"]["id"])
+            state["order_id"]    = int(event["output"]["resp"]["body"]["data"]["id"])
             state["item_ids"]    = []
             state["item_count"]  = 0
             state["item_names"]  = []
           fail: |
-            state["failed_action"] = event["action"]
+            state["failed_action"] = event["action_id"]
             state["failed_error"]  = event["error"]["message"]
 
       - id: validate_order_created
@@ -112,12 +112,12 @@ flows:
             price: 99.99
         mutate_on:
           done: |
-            item = event["result"]["resp"]["body"]["data"]
+            item = event["output"]["resp"]["body"]["data"]
             state["item_ids"].append(int(item["id"]))
             state["item_names"].append(item["name"])
             state["item_count"] += 1
           fail: |
-            state["failed_action"] = event["action"]
+            state["failed_action"] = event["action_id"]
             state["failed_error"]  = event["error"]["message"]
 
       # ── Add item 2 ───────────────────────────────────────────────────────────
@@ -135,12 +135,12 @@ flows:
             price: 49.50
         mutate_on:
           done: |
-            item = event["result"]["resp"]["body"]["data"]
+            item = event["output"]["resp"]["body"]["data"]
             state["item_ids"].append(int(item["id"]))
             state["item_names"].append(item["name"])
             state["item_count"] += 1
           fail: |
-            state["failed_action"] = event["action"]
+            state["failed_action"] = event["action_id"]
             state["failed_error"]  = event["error"]["message"]
 
       # ── Add item 3 — also track last_item_id ─────────────────────────────────
@@ -158,13 +158,13 @@ flows:
             price: 19.00
         mutate_on:
           done: |
-            item = event["result"]["resp"]["body"]["data"]
+            item = event["output"]["resp"]["body"]["data"]
             state["item_ids"].append(int(item["id"]))
             state["item_names"].append(item["name"])
             state["item_count"] += 1
             state["last_item_id"] = int(item["id"])
           fail: |
-            state["failed_action"] = event["action"]
+            state["failed_action"] = event["action_id"]
             state["failed_error"]  = event["error"]["message"]
 
       # ── Validate accumulated state after 3 additions ─────────────────────────
@@ -199,11 +199,11 @@ flows:
             X-Api-Key: "${vars['api_key']}"
         mutate_on:
           done: |
-            data = event["result"]["resp"]["body"]["data"]
+            data = event["output"]["resp"]["body"]["data"]
             state["server_total"]      = data["total"]
             state["server_item_count"] = int(len(data["items"]))
           fail: |
-            state["failed_action"] = event["action"]
+            state["failed_action"] = event["action_id"]
             state["failed_error"]  = event["error"]["message"]
 
       - id: validate_order_state
@@ -227,11 +227,11 @@ flows:
             X-Api-Key: "${vars['api_key']}"
         mutate_on:
           done: |
-            data = event["result"]["resp"]["body"]["data"]
+            data = event["output"]["resp"]["body"]["data"]
             state["final_status"] = str(data["status"])
             state["final_total"]  = data["total"]
           fail: |
-            state["failed_action"] = event["action"]
+            state["failed_action"] = event["action_id"]
             state["failed_error"]  = event["error"]["message"]
 
       - id: validate_checkout
