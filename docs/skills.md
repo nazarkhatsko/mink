@@ -1,6 +1,6 @@
 # 🧩 Skills
 
-mink ships AI assistant skills (e.g. `generate-flow`, for AI-assisted flow generation) embedded in the binary. The `mink skill` command installs them into your project, or globally for your user.
+mink ships AI assistant skills (e.g. `mink-flow`, for AI-assisted flow generation) embedded in the binary. The `mink skill` command installs them into your project, or globally for your user.
 
 ⚙️ **Commands**
 ```bash
@@ -37,6 +37,6 @@ Each installed skill writes a `<name>.version` sidecar file next to `<name>.md`.
 
 | Skill | Description |
 |---|---|
-| `generate-flow` | Generates a mink flow YAML file based on a natural-language description |
+| `mink-flow` | Generates a mink flow YAML file based on a natural-language description |
 
 ⬅️ [Back to docs](README.md)

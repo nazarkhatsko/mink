@@ -1,18 +1,36 @@
 Generate a mink flow YAML file based on the user's description.
 
+## Check current docs first
+
+This file is a static snapshot and may drift from the installed `mink` version. Before generating a flow, prefer running the CLI's embedded docs as the source of truth:
+
+```bash
+mink manual getting-started      # first flow walkthrough
+mink manual configuration        # full YAML spec: vars, instances, flows, state, mutate_on
+mink manual drivers               # list all available drivers
+mink manual drivers <name>        # config/options/output for one driver
+```
+
+If anything below conflicts with `mink manual`, trust `mink manual`.
+
 ## Rules
 
 - Always start with `version: "1.0"` and `info:` block
 - Define all required drivers in `instances:` before using them in `flows:`
 - Every action must have `id:`, `description:`, `use:`, and `run_with:`
+- Add `timeout:` (milliseconds) on an action when it may hang (shell commands, slow endpoints)
 - Use `${vars['key']}` for reusable values, `${env['KEY']}` for secrets
 - Reference previous action outputs via `${actions['id']['field']}`
-- Use `state` dict (via `mutate_on.done`) to store values across actions
+- Use the `state` dict (written via `mutate_on.done`/`mutate_on.fail`) to carry values across actions
 - Use `gen` instance with `driver: generate` for generating fake data
 - Use `check` instance with `driver: validate` for JSON Schema validation
-- Use `sleep` instance with `driver: sleep` when async delay is needed
+- Use `sleep` instance with `driver: sleep` when an async delay is needed
+- Use `sh` instance with `driver: shell` for setup/teardown or system-level steps
+- Use `llm` instance with `driver: claude` to call the Claude API from a flow
 - HTTP actions must always include `method:` and `url:` in `run_with:`
 - All `${}` expressions are Starlark — use dict access `['key']`, not dot notation
+- JSON numbers decode as `float64`; cast IDs with `int(...)` in `mutate_on` before interpolating them into a URL or string, or you'll get `"1.0"` instead of `"1"`
+- Name the file `mink.yaml` for a single-suite project; for multiple suites use `<name>.mink.yaml` (e.g. `smoke.mink.yaml`)
 
 ## Available drivers
 
@@ -23,6 +41,7 @@ Generate a mink flow YAML file based on the user's description.
 | `validate` | JSON Schema validation |
 | `sleep` | delay execution |
 | `shell` | shell command execution |
+| `claude` | Claude API messages |
 
 ## Generate field types
 
@@ -47,6 +66,28 @@ resp:
 ```
 
 **generate:** returns the generated object directly
+
+**validate:** `{ valid: true }` on success; on failure the action errors and the flow stops — no output is produced
+
+**sleep:** `{ slept_ms: int }`
+
+**shell:** `{ exit_code: int, stdout: string, stderr: string, success: bool }` — a non-zero exit code does **not** fail the action, assert on `success` with `validate`
+
+**claude:**
+```
+in:
+  model: string
+  messages: []object
+  system: string
+  max_tokens: int
+out:
+  id: string
+  model: string
+  role: string
+  content: string       # concatenated text from response content blocks
+  stop_reason: string
+  usage: { input_tokens: int, output_tokens: int }
+```
 
 ## Example
 
@@ -93,7 +134,7 @@ flows:
           body: "${actions['generate_user']}"
         mutate_on:
           done: |
-            state["user_id"] = event["result"]["resp"]["body"]["id"]
+            state["user_id"] = int(event["result"]["resp"]["body"]["id"])
 
       - id: validate_response
         description: "Validate response contains id"

@@ -20,6 +20,11 @@
 ### CLI
 - Renamed embedded skill package `skills/` → `skill/` (`package skills` → `package skill`) to match the `mink skill` command and `internal/skill` package naming
 
+### Skills
+- Renamed skill `generate-flow` → `mink-flow` (installs as `/mink-flow`)
+- Refreshed `mink-flow` content for all changes since v1.0.0: added `claude` and `shell` to available drivers, documented output shape for every driver, added `timeout`, `int()` numeric-ID cast, and the `<name>.mink.yaml` naming convention
+- `mink-flow` now points to `mink manual` as the source of truth if its own rules go stale
+
 ---
 
 
