@@ -11,11 +11,10 @@ func NewCmd() *cobra.Command {
 		Short: "List drivers or show driver documentation",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			page := "README"
 			if len(args) == 1 {
-				page = args[0]
+				return docutil.Show("drivers", args[0])
 			}
-			return docutil.Show("drivers", page)
+			return docutil.Show("drivers")
 		},
 	}
 }
