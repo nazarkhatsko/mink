@@ -32,6 +32,7 @@ func (r *JSON) ActionDone(id string, output driver.Output, duration time.Duratio
 		"action_id":   id,
 		"duration_ms": duration.Milliseconds(),
 		"output":      output,
+		"error":       nil,
 		"state":       state,
 	})
 }

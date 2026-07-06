@@ -1,0 +1,68 @@
+version: "1.0"
+info:
+  name: "Error Handling Demo"
+  description: "Each flow deliberately fails one action to show event['error']['code'] in mutate_on.fail"
+
+instances:
+  api:
+    driver: http
+
+  check:
+    driver: validate
+
+flows:
+  - name: "config-error"
+    actions:
+      - id: missing_url
+        description: "http driver called without the required url option"
+        use: api
+        run_with:
+          method: GET
+        mutate_on:
+          fail: |
+            state["code"]    = event["error"]["code"]
+            state["message"] = event["error"]["message"]
+
+  - name: "transport-error"
+    actions:
+      - id: connection_refused
+        description: "nothing listens on port 1, so the TCP connect is refused immediately"
+        use: api
+        run_with:
+          method: GET
+          url: "http://127.0.0.1:1/"
+        mutate_on:
+          fail: |
+            state["code"]    = event["error"]["code"]
+            state["message"] = event["error"]["message"]
+
+  - name: "timeout-error"
+    actions:
+      - id: unroutable_host
+        description: "10.255.255.1 is unroutable, so the 200ms action timeout fires first"
+        use: api
+        timeout: 200
+        run_with:
+          method: GET
+          url: "http://10.255.255.1/"
+        mutate_on:
+          fail: |
+            state["code"]    = event["error"]["code"]
+            state["message"] = event["error"]["message"]
+
+  - name: "assertion-error"
+    actions:
+      - id: schema_mismatch
+        description: "value deliberately doesn't match the schema — this is what 'internal' means for validate: not a broken flow, a failed assertion"
+        use: check
+        run_with:
+          value:
+            status: "ok"
+          schema:
+            type: object
+            required: ["missing_field"]
+        mutate_on:
+          fail: |
+            state["code"]    = event["error"]["code"]
+            state["message"] = event["error"]["message"]
+            state["output"]  = event["output"]
