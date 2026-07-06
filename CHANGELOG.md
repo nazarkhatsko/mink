@@ -11,6 +11,10 @@
 ### Examples
 - Added `examples/error-handling` — four flows that each deliberately fail one action to show `event['error']['code']` (`config`, `transport`, `timeout`, `internal`) in `mutate_on.fail`; no local server needed
 
+### Documentation
+- `docs/error-handling.md` — new conceptual guide: reacting to `mutate_on.fail`, branching on `event['error']['code']`, why a failed `validate` assertion isn't a fifth code
+- `internal/manual/embedded/configuration.md` — promoted `event['error']['code']` from a sentence to a proper `Code` / `Set when` reference table
+
 ### Drivers
 - Added `shell` driver — executes shell commands via `sh -c`; options: `command` (required), `env`, `dir`; output: `exit_code`, `stdout`, `stderr`, `success`
 - Added `python` driver — executes inline Python `code` or an existing `.py` `script`; config: `interpreter` (default `python3`), `env`, `dir`; options: `code`/`script` (exactly one), `args`, `env`, `dir`; output: `exit_code`, `stdout` (parsed as JSON if valid, otherwise raw string), `stderr`, `success`

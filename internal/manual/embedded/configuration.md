@@ -173,7 +173,16 @@ Starlark scripts that run after an action to update `state`. The `state` dict is
 | `event['output']` | `done`, `fail` | Driver output (same as `actions['id']`); on `fail` this is whatever partial output the driver returned, or `None` if it returned none |
 | `event['error']` | `fail` | `{"code": "...", "message": "..."}`; `None` on `done` |
 
-`event['error']['code']` is one of `config` (bad/missing option from the flow), `transport` (the external call/process failed), `timeout` (the action's `timeout` was exceeded), or `internal` (anything else) — branch on this instead of parsing `message`.
+#### `event['error']['code']`
+
+| Code | Set when |
+|---|---|
+| `config` | The driver rejected a missing or invalid option before doing anything |
+| `transport` | An external call or process failed (network error, non-`ExitError` exec failure, RPC error) |
+| `timeout` | The action's `timeout` was exceeded — takes priority over any other code a driver set |
+| `internal` | Anything else: marshaling/parsing failures, and driver-specific assertion failures (e.g. `validate` schema mismatch) |
+
+Branch on `code`, not `message` — `message` is free-form and driver-specific, `code` is not.
 
 `mutate_on.fail` always runs before the flow stops — it cannot prevent termination.
 
