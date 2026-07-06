@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.1.0 — 2026-07-06
 
 ### Core
 - **Breaking:** action fields renamed for consistency with existing code/doc terminology: `use` → `instance` (matches the `instances:` block it references) and `run_with` → `execute_with` (matches the `Driver.Execute` method it becomes the `options` argument to); updated across config schema, engine, all examples, docs, manual, and both `mink-flow` skills

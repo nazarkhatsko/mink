@@ -3,7 +3,7 @@ version: "3"
 vars:
   BUILD_DIR: ./build
   TARGET: "{{.BUILD_DIR}}/mink"
-  TARGET_VERSION: v1.0.0
+  TARGET_VERSION: v1.1.0
 
 tasks:
   fmt:
