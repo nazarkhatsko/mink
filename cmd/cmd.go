@@ -7,6 +7,7 @@ import (
 	"github.com/nazarkhatsko/mink/cmd/validate"
 	"github.com/nazarkhatsko/mink/cmd/version"
 	driverclaude "github.com/nazarkhatsko/mink/internal/drivers/claude"
+	driverfirestore "github.com/nazarkhatsko/mink/internal/drivers/firestore"
 	"github.com/nazarkhatsko/mink/internal/drivers/generate"
 	driverhttp "github.com/nazarkhatsko/mink/internal/drivers/http"
 	driverpython "github.com/nazarkhatsko/mink/internal/drivers/python"
@@ -25,6 +26,7 @@ func init() {
 	driver.Register(drivershell.New())
 	driver.Register(driverclaude.New())
 	driver.Register(driverpython.New())
+	driver.Register(driverfirestore.New())
 }
 
 func Execute() error {

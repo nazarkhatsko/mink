@@ -13,5 +13,6 @@ Drivers are the building blocks of mink flows. Each driver encapsulates interact
 | shell | Shell command execution |
 | python | Python code/script execution |
 | claude | Claude API messages |
+| firestore | Fetch a Firestore document by path |
 
 Run `mink manual drivers <name>` for details on a specific driver.
