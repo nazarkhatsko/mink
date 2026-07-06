@@ -19,5 +19,5 @@ For configuration reference and drivers, run `mink manual ...` from the CLI, or 
 
 | | Guide | Description |
 |---|---|---|
-| ⚙️ | [Configuration](../internal/manual/configuration.md) | `vars`, `instances`, `flows` reference |
-| 🔌 | [Drivers](../internal/manual/drivers.md) | Built-in driver reference |
+| ⚙️ | [Configuration](../internal/manual/embedded/configuration.md) | `vars`, `instances`, `flows` reference |
+| 🔌 | [Drivers](../internal/manual/embedded/drivers.md) | Built-in driver reference |

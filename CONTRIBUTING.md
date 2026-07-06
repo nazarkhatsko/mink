@@ -52,7 +52,7 @@ instances:
       key: "value"
 ```
 
-Add `internal/manual/drivers/mydriver.md` (config/options/output fields, an example) and list it in `internal/manual/drivers.md` — this is the only source for `mink manual drivers mydriver`.
+Add `internal/manual/embedded/drivers/mydriver.md` (config/options/output fields, an example) and list it in `internal/manual/embedded/drivers.md` — this is the only source for `mink manual drivers mydriver`.
 
 ## Branches
 

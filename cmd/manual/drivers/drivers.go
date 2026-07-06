@@ -1,7 +1,7 @@
 package drivers
 
 import (
-	"github.com/nazarkhatsko/mink/internal/docutil"
+	"github.com/nazarkhatsko/mink/internal/manual"
 	"github.com/spf13/cobra"
 )
 
@@ -12,9 +12,9 @@ func NewCmd() *cobra.Command {
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 1 {
-				return docutil.Show("drivers", args[0])
+				return manual.Show("drivers", args[0])
 			}
-			return docutil.Show("drivers")
+			return manual.Show("drivers")
 		},
 	}
 }
