@@ -1,33 +1,23 @@
 # Getting Started
 
+For an illustrated walkthrough, see `docs/getting-started.md`. This page is the terminal-only technical reference.
+
 ## Installation
 
 ```bash
-go install github.com/nazarkhatsko/mink@latest
+go install github.com/nazarkhatsko/mink@latest      # or: git clone + task build
 ```
 
-Or build from source:
-
-```bash
-git clone https://github.com/nazarkhatsko/mink
-cd mink
-task build
-```
-
-## Your first flow
-
-Create a file `mink.yaml`:
+## Minimal flow
 
 ```yaml
 version: "1.0"
 info:
   name: "My first flow"
-  description: "Ping httpbin and validate response"
 
 instances:
   api:
     driver: http
-
   check:
     driver: validate
 
@@ -35,26 +25,20 @@ flows:
   - name: "ping"
     actions:
       - id: ping
-        description: "GET httpbin"
         use: api
         run_with:
           method: GET
           url: "https://httpbin.org/get"
 
       - id: validate
-        description: "Validate response status"
         use: check
         run_with:
           value: "${actions['ping']['resp']}"
           schema:
             type: object
             properties:
-              status:
-                type: integer
-                const: 200
+              status: { type: integer, const: 200 }
 ```
-
-## Run it
 
 ```bash
 mink run mink.yaml

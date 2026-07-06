@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/nazarkhatsko/mink/internal/console"
+	"github.com/nazarkhatsko/mink/internal/manual"
 	"github.com/nazarkhatsko/mink/internal/render"
-	"github.com/nazarkhatsko/mink/manual"
 )
 
 // Show reads an embedded doc page, renders it, and prints it to stdout.

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	embeddedskill "github.com/nazarkhatsko/mink/skill"
+	embeddedskill "github.com/nazarkhatsko/mink/internal/skill/embedded"
 )
 
 var ErrNotInstalled = errors.New("not installed")

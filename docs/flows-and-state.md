@@ -1,6 +1,6 @@
 # 🧠 Flows & State
 
-The mental model behind actions, `state`, and `${}` expressions — for full field-by-field syntax see [manual/configuration](../manual/configuration.md).
+The mental model behind actions, `state`, and `${}` expressions — for full field-by-field syntax see [manual/configuration](../internal/manual/configuration.md).
 
 ## 🔗 How a flow runs
 
