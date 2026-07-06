@@ -10,6 +10,8 @@ instances: ...
 flows: ...
 ```
 
+A single file is conventionally named `mink.yaml`. If a project has several (e.g. one per suite), name them `<name>.mink.yaml` — `smoke.mink.yaml`, `regression.mink.yaml` — so the descriptive part sorts naturally in a file listing while `.mink.yaml` stays a greppable, tooling-recognizable suffix.
+
 ## `version`
 
 Schema version. Currently `"1.0"`.
