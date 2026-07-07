@@ -31,7 +31,7 @@ Without `--global`, the target subdirectory (`.claude/skills/` or `.codex/skills
 
 ## 🔄 Versioning
 
-Each installed skill writes a `<name>.version` sidecar file next to `<name>.md`. `mink skill upgrade` compares it against the version embedded in the binary and rewrites the skill if they differ. `mink skill install` is idempotent — it's a no-op when the installed skill is already up to date.
+Each installed skill is written as a `<name>/` directory containing `SKILL.md` and a `VERSION` file. `mink skill upgrade` compares `VERSION` against the version embedded in the binary and rewrites the skill if they differ. `mink skill install` is idempotent — it's a no-op when the installed skill is already up to date.
 
 ## 📦 Available skills
 

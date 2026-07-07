@@ -72,7 +72,7 @@ func (s *Service) Status(name string) (Status, error) {
 	if err != nil {
 		return 0, err
 	}
-	data, err := os.ReadFile(filepath.Join(s.target, name+".version"))
+	data, err := os.ReadFile(filepath.Join(s.target, name, "VERSION"))
 	if os.IsNotExist(err) {
 		return StatusNotInstalled, nil
 	}
@@ -102,27 +102,30 @@ func (s *Service) Install(name string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("skill %q version not found: %w", name, err)
 	}
-	if err := os.MkdirAll(s.target, 0755); err != nil {
+	skillDir := filepath.Join(s.target, name)
+	if err := os.MkdirAll(skillDir, 0755); err != nil {
 		return false, fmt.Errorf("create directory: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(s.target, name+".md"), content, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(skillDir, "SKILL.md"), content, 0644); err != nil {
 		return false, fmt.Errorf("write skill: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(s.target, name+".version"), []byte(version+"\n"), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(skillDir, "VERSION"), []byte(version+"\n"), 0644); err != nil {
 		return false, fmt.Errorf("write skill version: %w", err)
 	}
 	return true, nil
 }
 
 func (s *Service) Uninstall(name string) error {
-	mdPath := filepath.Join(s.target, name+".md")
-	if err := os.Remove(mdPath); err != nil {
+	skillDir := filepath.Join(s.target, name)
+	if _, err := os.Stat(skillDir); err != nil {
 		if os.IsNotExist(err) {
 			return ErrNotInstalled
 		}
 		return fmt.Errorf("remove skill: %w", err)
 	}
-	_ = os.Remove(filepath.Join(s.target, name+".version"))
+	if err := os.RemoveAll(skillDir); err != nil {
+		return fmt.Errorf("remove skill: %w", err)
+	}
 	return nil
 }
 
