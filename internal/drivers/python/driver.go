@@ -17,26 +17,27 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "python" }
 
-func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
-	interpreter, _ := options["interpreter"].(string)
-	if interpreter == "" {
-		interpreter = "python3"
-	}
+func (d *Driver) Methods() []string { return []string{"run_code", "run_script"} }
 
-	code, hasCode := options["code"].(string)
-	script, hasScript := options["script"].(string)
-	if hasCode && code == "" {
-		hasCode = false
+func (d *Driver) Options(method string) []driver.Option {
+	opts := []driver.Option{
+		{Name: "args"},
+		{Name: "env"},
+		{Name: "dir"},
 	}
-	if hasScript && script == "" {
-		hasScript = false
+	if method == "run_script" {
+		return append([]driver.Option{{Name: "script", Required: true}}, opts...)
 	}
-	if hasCode == hasScript {
-		return nil, driver.NewError(driver.ErrConfig, "python: exactly one of code or script is required")
-	}
+	return append([]driver.Option{{Name: "code", Required: true}}, opts...)
+}
 
-	scriptPath := script
-	if hasCode {
+func (d *Driver) Execute(ctx context.Context, method string, options map[string]any) (driver.Output, error) {
+	switch method {
+	case "run_code":
+		code, _ := options["code"].(string)
+		if code == "" {
+			return nil, driver.NewError(driver.ErrConfig, "python: code is required")
+		}
 		tmp, err := os.CreateTemp("", "mink-py-*.py")
 		if err != nil {
 			return nil, driver.Wrap(driver.ErrInternal, err, "python: create temp script: %v", err)
@@ -50,7 +51,22 @@ func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Ou
 		if err := tmp.Close(); err != nil {
 			return nil, driver.Wrap(driver.ErrInternal, err, "python: close temp script: %v", err)
 		}
-		scriptPath = tmp.Name()
+		return d.run(ctx, tmp.Name(), options)
+	case "run_script":
+		script, _ := options["script"].(string)
+		if script == "" {
+			return nil, driver.NewError(driver.ErrConfig, "python: script is required")
+		}
+		return d.run(ctx, script, options)
+	default:
+		return nil, driver.NewError(driver.ErrConfig, "python: unknown method %q", method)
+	}
+}
+
+func (d *Driver) run(ctx context.Context, scriptPath string, options map[string]any) (driver.Output, error) {
+	interpreter, _ := options["interpreter"].(string)
+	if interpreter == "" {
+		interpreter = "python3"
 	}
 
 	var args []string

@@ -25,7 +25,17 @@ func New() *Driver {
 
 func (d *Driver) Name() string { return "firestore" }
 
-func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
+func (d *Driver) Methods() []string { return []string{"get"} }
+
+func (d *Driver) Options(method string) []driver.Option {
+	return []driver.Option{{Name: "path", Required: true}}
+}
+
+func (d *Driver) Execute(ctx context.Context, method string, options map[string]any) (driver.Output, error) {
+	if method != "get" {
+		return nil, driver.NewError(driver.ErrConfig, "firestore: unknown method %q", method)
+	}
+
 	projectID, _ := options["project_id"].(string)
 	if projectID == "" {
 		return nil, driver.NewError(driver.ErrConfig, "firestore: project_id is required")

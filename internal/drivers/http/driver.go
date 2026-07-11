@@ -18,13 +18,46 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "http" }
 
-func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
-	method, _ := options["method"].(string)
-	if method == "" {
-		method = "GET"
-	}
-	method = strings.ToUpper(method)
+func (d *Driver) Methods() []string {
+	return []string{"get", "post", "put", "patch", "delete", "request"}
+}
 
+func (d *Driver) Options(method string) []driver.Option {
+	base := []driver.Option{
+		{Name: "url", Required: true},
+		{Name: "headers"},
+		{Name: "body"},
+	}
+	if method == "request" {
+		return append([]driver.Option{{Name: "method", Required: true}}, base...)
+	}
+	return base
+}
+
+func (d *Driver) Execute(ctx context.Context, method string, options map[string]any) (driver.Output, error) {
+	switch method {
+	case "get":
+		return d.doRequest(ctx, http.MethodGet, options)
+	case "post":
+		return d.doRequest(ctx, http.MethodPost, options)
+	case "put":
+		return d.doRequest(ctx, http.MethodPut, options)
+	case "patch":
+		return d.doRequest(ctx, http.MethodPatch, options)
+	case "delete":
+		return d.doRequest(ctx, http.MethodDelete, options)
+	case "request":
+		httpMethod, _ := options["method"].(string)
+		if httpMethod == "" {
+			return nil, driver.NewError(driver.ErrConfig, "http: method is required for the request method")
+		}
+		return d.doRequest(ctx, strings.ToUpper(httpMethod), options)
+	default:
+		return nil, driver.NewError(driver.ErrConfig, "http: unknown method %q", method)
+	}
+}
+
+func (d *Driver) doRequest(ctx context.Context, method string, options map[string]any) (driver.Output, error) {
 	url, _ := options["url"].(string)
 	if url == "" {
 		return nil, driver.NewError(driver.ErrConfig, "http: url is required")

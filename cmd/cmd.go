@@ -12,7 +12,7 @@ import (
 	driverhttp "github.com/nazarkhatsko/mink/internal/drivers/http"
 	driverpython "github.com/nazarkhatsko/mink/internal/drivers/python"
 	drivershell "github.com/nazarkhatsko/mink/internal/drivers/shell"
-	driversleep "github.com/nazarkhatsko/mink/internal/drivers/sleep"
+	drivertime "github.com/nazarkhatsko/mink/internal/drivers/time"
 	drivervalidate "github.com/nazarkhatsko/mink/internal/drivers/validate"
 	"github.com/nazarkhatsko/mink/pkg/driver"
 	"github.com/spf13/cobra"
@@ -22,7 +22,7 @@ func init() {
 	driver.Register(driverhttp.New())
 	driver.Register(generate.New())
 	driver.Register(drivervalidate.New())
-	driver.Register(driversleep.New())
+	driver.Register(drivertime.New())
 	driver.Register(drivershell.New())
 	driver.Register(driverclaude.New())
 	driver.Register(driverpython.New())

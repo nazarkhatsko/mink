@@ -12,12 +12,15 @@ vars:
 instances:
   api:
     driver: http
+    methods: [post, get]
 
   gen:
     driver: generate
+    methods: [object]
 
   check:
     driver: validate
+    methods: [schema]
 
 flows:
   - id: order_lifecycle
@@ -28,6 +31,7 @@ flows:
       - id: generate_item_1
         description: "Generate first product name"
         instance: gen
+        method: object
         execute_with:
           schema:
             name:
@@ -37,6 +41,7 @@ flows:
       - id: generate_item_2
         description: "Generate second product name"
         instance: gen
+        method: object
         execute_with:
           schema:
             name:
@@ -46,6 +51,7 @@ flows:
       - id: generate_item_3
         description: "Generate third product name"
         instance: gen
+        method: object
         execute_with:
           schema:
             name:
@@ -57,8 +63,8 @@ flows:
       - id: create_order
         description: "Create a new order and initialise state tracking"
         instance: api
+        method: post
         execute_with:
-          method: POST
           url: "${vars['base_url'] + '/orders'}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -75,6 +81,7 @@ flows:
       - id: validate_order_created
         description: "Order was created with pending status"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['create_order']['resp']}"
           schema:
@@ -103,8 +110,8 @@ flows:
       - id: add_item_1
         description: "Add first item; accumulate its ID and name into state"
         instance: api
+        method: post
         execute_with:
-          method: POST
           url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/items'}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -126,8 +133,8 @@ flows:
       - id: add_item_2
         description: "Add second item; continue accumulating state"
         instance: api
+        method: post
         execute_with:
-          method: POST
           url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/items'}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -149,8 +156,8 @@ flows:
       - id: add_item_3
         description: "Add third item; also snapshot last_item_id for later"
         instance: api
+        method: post
         execute_with:
-          method: POST
           url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/items'}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -173,6 +180,7 @@ flows:
       - id: validate_item_count
         description: "State counter must equal 3 after adding three items"
         instance: check
+        method: schema
         execute_with:
           value: "${state['item_count']}"
           schema:
@@ -182,6 +190,7 @@ flows:
       - id: validate_item_ids_length
         description: "State list must hold exactly 3 item IDs"
         instance: check
+        method: schema
         execute_with:
           value: "${len(state['item_ids'])}"
           schema:
@@ -193,8 +202,8 @@ flows:
       - id: get_order
         description: "GET order to capture server-computed total into state"
         instance: api
+        method: get
         execute_with:
-          method: GET
           url: "${vars['base_url'] + '/orders/' + str(state['order_id'])}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -210,6 +219,7 @@ flows:
       - id: validate_order_state
         description: "Server item count must match our locally tracked count"
         instance: check
+        method: schema
         execute_with:
           value: "${state['server_item_count']}"
           schema:
@@ -221,8 +231,8 @@ flows:
       - id: checkout
         description: "Checkout the order; capture final status into state"
         instance: api
+        method: post
         execute_with:
-          method: POST
           url: "${vars['base_url'] + '/orders/' + str(state['order_id']) + '/checkout'}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -238,6 +248,7 @@ flows:
       - id: validate_checkout
         description: "Final status must be completed and total must match server total"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['checkout']['resp']}"
           schema:
@@ -267,6 +278,7 @@ flows:
       - id: validate_final_state
         description: "State must reflect completed status after checkout"
         instance: check
+        method: schema
         execute_with:
           value: "${state['final_status']}"
           schema:

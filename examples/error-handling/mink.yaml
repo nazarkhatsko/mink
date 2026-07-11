@@ -6,19 +6,22 @@ info:
 instances:
   api:
     driver: http
+    methods: [get]
 
   check:
     driver: validate
+    methods: [schema]
 
 flows:
   - id: config_error
-    description: "http action missing the required url option"
+    description: "http action whose url resolves to an empty string"
     actions:
-      - id: missing_url
-        description: "http driver called without the required url option"
+      - id: empty_url
+        description: "url resolves to an empty string, so the http driver rejects it before making any request"
         instance: api
+        method: get
         execute_with:
-          method: GET
+          url: ""
         mutate_on:
           fail: |
             state["code"]    = event["error"]["code"]
@@ -30,8 +33,8 @@ flows:
       - id: connection_refused
         description: "nothing listens on port 1, so the TCP connect is refused immediately"
         instance: api
+        method: get
         execute_with:
-          method: GET
           url: "http://127.0.0.1:1/"
         mutate_on:
           fail: |
@@ -44,9 +47,9 @@ flows:
       - id: unroutable_host
         description: "10.255.255.1 is unroutable, so the 200ms action timeout fires first"
         instance: api
+        method: get
         timeout: 200
         execute_with:
-          method: GET
           url: "http://10.255.255.1/"
         mutate_on:
           fail: |
@@ -59,6 +62,7 @@ flows:
       - id: schema_mismatch
         description: "value deliberately doesn't match the schema — this is what 'internal' means for validate: not a broken flow, a failed assertion"
         instance: check
+        method: schema
         execute_with:
           value:
             status: "ok"

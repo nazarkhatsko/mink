@@ -1,12 +1,24 @@
 # shell
 
-Executes a shell command via `sh -c`. Useful for database seeding, service health checks, file setup, or any system-level operation in a flow.
+Executes a shell command as a flow step — either inline `code` or an existing script file via `script`, both run through `sh`. Useful for database seeding, service health checks, file setup, or any system-level operation in a flow.
 
-## Options
+## Methods
+
+### `run_code`
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `command` | string | yes | Shell command to run |
+| `code` | string | yes | Inline shell source (use YAML `\|` for multiline scripts) |
+| `args` | []any | no | Arguments passed to the script (`$1`, `$2`, ...) |
+| `env` | object | no | Extra environment variables merged with the current process environment |
+| `dir` | string | no | Working directory for the command (default: current process directory) |
+
+### `run_script`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `script` | string | yes | Path to an existing shell script file |
+| `args` | []any | no | Arguments passed to the script (`$1`, `$2`, ...) |
 | `env` | object | no | Extra environment variables merged with the current process environment |
 | `dir` | string | no | Working directory for the command (default: current process directory) |
 
@@ -38,6 +50,11 @@ A non-zero exit code does **not** fail the action — it returns `success: false
 instances:
   sh:
     driver: shell
+    methods: [run_code, run_script]
+
+  check:
+    driver: validate
+    methods: [schema]
 
 flows:
   - id: db_setup
@@ -45,15 +62,17 @@ flows:
       - id: truncate
         description: "Truncate users table"
         instance: sh
+        method: run_code
         timeout: 10000
         execute_with:
-          command: "psql -U admin -c 'TRUNCATE users;'"
+          code: "psql -U admin -c 'TRUNCATE users;'"
           env:
             PGPASSWORD: "${vars['db_pass']}"
 
       - id: check_truncated
         description: "Assert truncate succeeded"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['truncate']}"
           schema:
@@ -62,4 +81,12 @@ flows:
               success:
                 type: boolean
                 const: true
+
+      - id: seed
+        description: "Run an existing seed.sh script"
+        instance: sh
+        method: run_script
+        execute_with:
+          script: "scripts/seed.sh"
+          args: ["--env", "test"]
 ```

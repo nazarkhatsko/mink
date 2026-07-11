@@ -10,12 +10,15 @@ vars:
 instances:
   api:
     driver: http
+    methods: [get, post, delete]
 
   gen:
     driver: generate
+    methods: [object]
 
   check:
     driver: validate
+    methods: [schema]
 
 flows:
   - id: unauthorized_request
@@ -24,13 +27,14 @@ flows:
       - id: request_without_key
         description: "Request without API key should return 401"
         instance: api
+        method: get
         execute_with:
-          method: GET
           url: "${vars['base_url'] + '/users'}"
 
       - id: validate_unauthorized
         description: "Validate 401 response"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['request_without_key']['resp']}"
           schema:
@@ -46,6 +50,7 @@ flows:
       - id: generate_user
         description: "Generate random user payload"
         instance: gen
+        method: object
         execute_with:
           schema:
             name:
@@ -61,8 +66,8 @@ flows:
       - id: create_user
         description: "Create a new user"
         instance: api
+        method: post
         execute_with:
-          method: POST
           url: "${vars['base_url'] + '/users'}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -74,6 +79,7 @@ flows:
       - id: validate_created
         description: "Validate create response shape"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['create_user']['resp']}"
           schema:
@@ -93,8 +99,8 @@ flows:
       - id: get_user
         description: "Fetch the created user by id"
         instance: api
+        method: get
         execute_with:
-          method: GET
           url: "${vars['base_url'] + '/users/' + str(state['user_id'])}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -102,6 +108,7 @@ flows:
       - id: validate_get
         description: "Validate fetched user matches created"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['get_user']['resp']}"
           schema:
@@ -117,8 +124,8 @@ flows:
       - id: list_users
         description: "List all users"
         instance: api
+        method: get
         execute_with:
-          method: GET
           url: "${vars['base_url'] + '/users'}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -126,6 +133,7 @@ flows:
       - id: validate_list
         description: "Validate list response has count"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['list_users']['resp']}"
           schema:
@@ -145,8 +153,8 @@ flows:
       - id: delete_user
         description: "Delete the created user"
         instance: api
+        method: delete
         execute_with:
-          method: DELETE
           url: "${vars['base_url'] + '/users/' + str(state['user_id'])}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -154,6 +162,7 @@ flows:
       - id: validate_deleted
         description: "Validate delete response"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['delete_user']['resp']}"
           schema:
@@ -166,8 +175,8 @@ flows:
       - id: get_deleted_user
         description: "Confirm user no longer exists"
         instance: api
+        method: get
         execute_with:
-          method: GET
           url: "${vars['base_url'] + '/users/' + str(state['user_id'])}"
           headers:
             X-Api-Key: "${vars['api_key']}"
@@ -175,6 +184,7 @@ flows:
       - id: validate_not_found
         description: "Validate 404 for deleted user"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['get_deleted_user']['resp']}"
           schema:

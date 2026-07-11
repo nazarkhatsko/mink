@@ -20,7 +20,22 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "claude" }
 
-func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
+func (d *Driver) Methods() []string { return []string{"message"} }
+
+func (d *Driver) Options(method string) []driver.Option {
+	return []driver.Option{
+		{Name: "messages", Required: true},
+		{Name: "system"},
+		{Name: "max_tokens"},
+		{Name: "temperature"},
+	}
+}
+
+func (d *Driver) Execute(ctx context.Context, method string, options map[string]any) (driver.Output, error) {
+	if method != "message" {
+		return nil, driver.NewError(driver.ErrConfig, "claude: unknown method %q", method)
+	}
+
 	apiKey, _ := options["api_key"].(string)
 	if apiKey == "" {
 		apiKey = os.Getenv("ANTHROPIC_API_KEY")

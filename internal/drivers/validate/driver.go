@@ -16,7 +16,20 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "validate" }
 
-func (d *Driver) Execute(_ context.Context, options map[string]any) (driver.Output, error) {
+func (d *Driver) Methods() []string { return []string{"schema"} }
+
+func (d *Driver) Options(method string) []driver.Option {
+	return []driver.Option{
+		{Name: "value", Required: true},
+		{Name: "schema", Required: true},
+	}
+}
+
+func (d *Driver) Execute(_ context.Context, method string, options map[string]any) (driver.Output, error) {
+	if method != "schema" {
+		return nil, driver.NewError(driver.ErrConfig, "validate: unknown method %q", method)
+	}
+
 	value, ok := options["value"]
 	if !ok {
 		return nil, driver.NewError(driver.ErrConfig, "validate: value is required")

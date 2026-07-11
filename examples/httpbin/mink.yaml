@@ -9,15 +9,19 @@ vars:
 instances:
   api:
     driver: http
+    methods: [post]
 
-  sleep:
-    driver: sleep
+  time:
+    driver: time
+    methods: [wait]
 
   gen:
     driver: generate
+    methods: [object]
 
   check:
     driver: validate
+    methods: [schema]
 
 flows:
   - id: create_and_verify_user
@@ -26,6 +30,7 @@ flows:
       - id: generate_user
         description: "Generate random user payload"
         instance: gen
+        method: object
         execute_with:
           schema:
             name:
@@ -41,20 +46,22 @@ flows:
       - id: post_user
         description: "Post user payload to httpbin"
         instance: api
+        method: post
         execute_with:
-          method: POST
           url: "${vars['base_url'] + '/post'}"
           body: "${actions['generate_user']}"
 
       - id: wait
         description: "Wait a moment"
-        instance: sleep
+        instance: time
+        method: wait
         execute_with:
           ms: 200
 
       - id: validate_response
         description: "Validate response has json field"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['post_user']['resp']['body']}"
           schema:

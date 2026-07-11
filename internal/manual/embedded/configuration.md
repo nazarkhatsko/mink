@@ -59,15 +59,20 @@ Reference with `${vars['name']}`.
 
 ## `instances`
 
-Named driver instances used by actions. Each key is the instance name.
+Named driver instances used by actions. Each key is the instance name. A
+driver is a class, an instance is one instance of it, and `methods` is the
+subset of that driver's methods this instance is allowed to call — every
+action then names exactly which one it uses via `method:`.
 
 ```yaml
 instances:
   api:
     driver: http
+    methods: [get, post]
 
   db:
     driver: postgres
+    methods: [query]
     config:
       dsn: "${env['DATABASE_URL']}"
 ```
@@ -75,9 +80,10 @@ instances:
 | Field | Type | Description |
 |---|---|---|
 | `driver` | string | Driver name (built-in or custom) |
-| `config` | object | Driver-specific configuration |
+| `methods` | []string | Required, non-empty. Subset of the driver's methods this instance may call — run `mink manual drivers <name>` to see the full list |
+| `config` | object | Driver-specific configuration, merged into every action's `execute_with` (see "Merge rules" below) |
 
-`config` is optional for stateless drivers (`sleep`, `generate`, `validate`).
+`config` is optional for stateless drivers (`generate`, `validate`).
 
 ## `flows`
 
@@ -91,6 +97,7 @@ flows:
       - id: generate_user
         description: "Generate random payload"
         instance: gen
+        method: object
         execute_with:
           schema:
             name:
@@ -113,10 +120,33 @@ flows:
 | `id` | string | Unique action identifier within the flow; must be snake_case (`^[a-z][a-z0-9_]*$`) |
 | `description` | string | Human-readable description |
 | `instance` | string | Instance name from `instances` |
+| `method` | string | Required. Which of the instance's `methods` to call — run `mink manual drivers <name>` for the exact set per method |
 | `timeout` | int | Timeout in milliseconds; cancels the action if exceeded (0 = no timeout) |
-| `execute_with` | object | Driver-specific options, merged over instance `config` |
+| `execute_with` | object | Method-specific options, merged over instance `config` |
 | `mutate_on.done` | string | Starlark script executed after successful action; has access to `event['output']` |
 | `mutate_on.fail` | string | Starlark script executed on failure; has access to `event['output']` (partial, if any) and `event['error']`; flow still stops |
+
+### `execute_with` validation
+
+Every `(driver, method)` pair declares a closed set of top-level
+`execute_with` keys — some required, some optional. `config.Load` (and so
+`mink validate`) rejects a config in two cases, before any flow runs:
+
+- `execute_with` contains a key that isn't valid for the action's `method`
+- a required key is missing from both `instance.config` and the action's
+  `execute_with` (either source satisfies it, since `execute_with` is
+  merged over `config` — see "Merge rules" below)
+
+```
+$ mink validate mink.yaml
+Error: invalid config: action "create_order": execute_with key "method" is not valid for method "post" (allowed: [url headers body])
+```
+
+Only the presence of a key is checked here, not the validity of its
+resolved value — `execute_with` values are often `${...}` expressions that
+only resolve once the flow actually runs, so a present-but-empty or
+present-but-wrong-type value still surfaces as a regular action failure
+(`event['error']['code'] == "config"`), not a `config.Load` error.
 
 ## Variable resolution
 
@@ -151,8 +181,8 @@ Starlark scripts that run after an action to update `state`. The `state` dict is
 ```yaml
 - id: login
   instance: api
+  method: post
   execute_with:
-    method: POST
     url: "${vars['base_url'] + '/auth'}"
   mutate_on:
     done: |
@@ -212,6 +242,7 @@ When an action uses an instance with `config`, the action's `execute_with` is **
 instances:
   api:
     driver: http
+    methods: [post]
     config:
       headers:
         X-Api-Key: "secret"    # always sent
@@ -221,7 +252,7 @@ flows:
     actions:
       - id: create
         instance: api
+        method: post
         execute_with:
-          method: POST           # merged on top
-          url: "https://..."
+          url: "https://..."   # merged on top of config
 ```

@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/nazarkhatsko/mink/pkg/driver"
 	"gopkg.in/yaml.v3"
 )
 
@@ -32,6 +33,25 @@ func validate(cfg *Config) error {
 	if cfg.Version == "" {
 		return fmt.Errorf("version is required")
 	}
+
+	instanceDrivers := make(map[string]driver.Driver, len(cfg.Instances))
+	for name, instance := range cfg.Instances {
+		d, err := driver.Get(instance.Driver)
+		if err != nil {
+			return fmt.Errorf("instance %q: %w", name, err)
+		}
+		if len(instance.Methods) == 0 {
+			return fmt.Errorf("instance %q: methods is required", name)
+		}
+		driverMethods := stringSet(d.Methods())
+		for _, m := range instance.Methods {
+			if !driverMethods[m] {
+				return fmt.Errorf("instance %q: method %q is not supported by driver %q (available: %v)", name, m, instance.Driver, d.Methods())
+			}
+		}
+		instanceDrivers[name] = d
+	}
+
 	seenFlowIDs := make(map[string]bool)
 	for _, flow := range cfg.Flows {
 		if flow.ID == "" {
@@ -44,6 +64,7 @@ func validate(cfg *Config) error {
 			return fmt.Errorf("duplicate flow id %q", flow.ID)
 		}
 		seenFlowIDs[flow.ID] = true
+
 		for _, action := range flow.Actions {
 			if action.ID == "" {
 				return fmt.Errorf("action id is required in flow %q", flow.ID)
@@ -54,10 +75,57 @@ func validate(cfg *Config) error {
 			if action.Instance == "" {
 				return fmt.Errorf("action %q: instance is required", action.ID)
 			}
-			if _, ok := cfg.Instances[action.Instance]; !ok {
+			instance, ok := cfg.Instances[action.Instance]
+			if !ok {
 				return fmt.Errorf("action %q: instance %q not found", action.ID, action.Instance)
+			}
+			if action.Method == "" {
+				return fmt.Errorf("action %q: method is required", action.ID)
+			}
+
+			instanceMethods := stringSet(instance.Methods)
+			if !instanceMethods[action.Method] {
+				return fmt.Errorf("action %q: method %q not declared in instance %q methods %v", action.ID, action.Method, action.Instance, instance.Methods)
+			}
+
+			d := instanceDrivers[action.Instance]
+			allowed := d.Options(action.Method)
+			allowedNames := make(map[string]bool, len(allowed))
+			for _, opt := range allowed {
+				allowedNames[opt.Name] = true
+			}
+			for k := range action.ExecuteWith {
+				if !allowedNames[k] {
+					return fmt.Errorf("action %q: execute_with key %q is not valid for method %q (allowed: %v)", action.ID, k, action.Method, optionNames(allowed))
+				}
+			}
+			for _, opt := range allowed {
+				if !opt.Required {
+					continue
+				}
+				_, inConfig := instance.Config[opt.Name]
+				_, inExecuteWith := action.ExecuteWith[opt.Name]
+				if !inConfig && !inExecuteWith {
+					return fmt.Errorf("action %q: execute_with is missing required key %q for method %q", action.ID, opt.Name, action.Method)
+				}
 			}
 		}
 	}
 	return nil
+}
+
+func stringSet(values []string) map[string]bool {
+	set := make(map[string]bool, len(values))
+	for _, v := range values {
+		set[v] = true
+	}
+	return set
+}
+
+func optionNames(options []driver.Option) []string {
+	names := make([]string, len(options))
+	for i, opt := range options {
+		names[i] = opt.Name
+	}
+	return names
 }

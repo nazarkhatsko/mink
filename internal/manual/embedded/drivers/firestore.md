@@ -10,7 +10,9 @@ Fetches a single Firestore document by path. Authorization is always through an 
 | `credentials_file` | string | yes | Path to a service-account JSON key file (falls back to `GOOGLE_APPLICATION_CREDENTIALS` env var) |
 | `database_id` | string | no | Firestore database ID. Default: `(default)` |
 
-## Options
+## Methods
+
+### `get`
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -41,12 +43,14 @@ vars:
 instances:
   fs:
     driver: firestore
+    methods: [get]
     config:
       project_id: "my-gcp-project"
       credentials_file: "${vars['sa_key_path']}"
 
   check:
     driver: validate
+    methods: [schema]
 
 flows:
   - id: fetch_user
@@ -54,12 +58,14 @@ flows:
       - id: fetch_user
         description: "Fetch a user document by its Firestore path"
         instance: fs
+        method: get
         execute_with:
           path: "users/abc123"
 
       - id: validate_user
         description: "Validate the user document exists and has the expected fields"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['fetch_user']}"
           schema:

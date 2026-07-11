@@ -20,20 +20,23 @@ info:
 instances:
   api:
     driver: http
+    methods: [get]
   check:
     driver: validate
+    methods: [schema]
 
 flows:
   - id: ping
     actions:
       - id: ping
         instance: api
+        method: get
         execute_with:
-          method: GET
           url: "https://httpbin.org/get"
 
       - id: validate
         instance: check
+        method: schema
         execute_with:
           value: "${actions['ping']['resp']}"
           schema:

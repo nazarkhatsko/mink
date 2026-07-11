@@ -9,7 +9,9 @@ Sends messages to the Claude API.
 | `api_key` | string | yes | Anthropic API key (falls back to `ANTHROPIC_API_KEY` env var) |
 | `model` | string | no | Model name. Default: `claude-sonnet-4-6` |
 
-## Options
+## Methods
+
+### `message`
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -55,6 +57,7 @@ vars:
 instances:
   llm:
     driver: claude
+    methods: [message]
     config:
       api_key: "${vars['api_key']}"
       model: "claude-sonnet-4-6"
@@ -65,6 +68,7 @@ flows:
       - id: ask_claude
         description: "Ask Claude to classify a support ticket"
         instance: llm
+        method: message
         execute_with:
           system: "You are a support ticket triage assistant. Reply with one word: bug, question, or feature."
           messages:
@@ -75,6 +79,7 @@ flows:
       - id: validate_classification
         description: "Validate Claude classified it as a bug"
         instance: check
+        method: schema
         execute_with:
           value: "${actions['ask_claude']['out']}"
           schema:

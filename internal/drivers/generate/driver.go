@@ -14,7 +14,17 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "generate" }
 
-func (d *Driver) Execute(_ context.Context, options map[string]any) (driver.Output, error) {
+func (d *Driver) Methods() []string { return []string{"object"} }
+
+func (d *Driver) Options(method string) []driver.Option {
+	return []driver.Option{{Name: "schema", Required: true}}
+}
+
+func (d *Driver) Execute(_ context.Context, method string, options map[string]any) (driver.Output, error) {
+	if method != "object" {
+		return nil, driver.NewError(driver.ErrConfig, "generate: unknown method %q", method)
+	}
+
 	raw, ok := options["schema"]
 	if !ok {
 		return nil, driver.NewError(driver.ErrConfig, "generate: schema is required")

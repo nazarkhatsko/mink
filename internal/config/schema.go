@@ -14,8 +14,9 @@ type Info struct {
 }
 
 type Instance struct {
-	Driver string         `yaml:"driver"`
-	Config map[string]any `yaml:"config"`
+	Driver  string         `yaml:"driver"`
+	Methods []string       `yaml:"methods"`
+	Config  map[string]any `yaml:"config"`
 }
 
 type Flow struct {
@@ -28,6 +29,7 @@ type Action struct {
 	ID          string         `yaml:"id"`
 	Description string         `yaml:"description"`
 	Instance    string         `yaml:"instance"`
+	Method      string         `yaml:"method"`
 	Timeout     int            `yaml:"timeout"` // ms, 0 = no timeout
 	ExecuteWith map[string]any `yaml:"execute_with"`
 	MutateOn    MutateOn       `yaml:"mutate_on"`

@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Core
+- **Breaking:** drivers are now decomposed into named methods instead of one catch-all `Execute`. `pkg/driver.Driver` gains `Methods() []string` and `Options(method string) []Option`; `Execute` gains a `method string` parameter. Every action now requires a `method:` field alongside `instance:`, and every `instances.<name>` requires a non-empty `methods:` list — the subset of the driver's methods that instance may call
+- **Breaking:** `execute_with` is now strictly validated on `config.Load`/`mink validate`, before any flow runs: a key not declared for the action's method is rejected, and a `Required` key missing from both `instance.config` and `execute_with` is rejected. Previously an unknown key was silently ignored and a missing required key only surfaced as a runtime failure inside the driver
+- **Breaking:** `http` driver split into `get`/`post`/`put`/`patch`/`delete` methods (verb fixed by the method, no more `method:` option in `execute_with`) plus a `request` escape hatch for verbs without a dedicated method (`HEAD`, `OPTIONS`, custom) — `request` is the only one that still takes `method:` as an option
+- **Breaking:** `python` driver split into `run_code`/`run_script` methods, replacing the old single `Execute` with a manual "exactly one of `code`/`script`" check — the split is enforced structurally by `config.Load` instead
+- **Breaking:** `sleep` driver renamed to `time` (method: `wait`) — the rest of the built-in drivers name the domain (`http`, `shell`, `python`, `firestore`, `claude`) and let the method be the verb; `sleep` was itself already a verb, making the driver name and its method near-duplicates
+- **Breaking:** `shell` driver split into `run_code`/`run_script` methods, mirroring `python` — `command` is replaced by `code` (`run_code`) or `script` (`run_script`), both gain `args`
+- `firestore`, `claude`, `generate`, `validate` each gain a single named method (`get`, `message`, `object`, `schema`) — no behavior change, just the new dispatch shape
+- Unknown `driver:` names in `instances` are now caught by `config.Load`/`mink validate` — previously only surfaced at runtime on first use
+
+### Documentation
+- `internal/manual/embedded/drivers/*.md` restructured: one `## Methods` section per driver, one subsection per method, each with its own options/output table
+- `internal/manual/embedded/configuration.md` — new `execute_with` validation section; `instances`/action-field tables updated for `methods:`/`method:`
+- `CONTRIBUTING.md` — custom driver example updated for `Methods()`/`Options()`/`Execute(ctx, method, options)`
+
 ## v1.1.0 — 2026-07-06
 
 ### Core

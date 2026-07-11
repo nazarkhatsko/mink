@@ -35,7 +35,7 @@ func (e *engine) executeAction(ctx context.Context, execCtx *Context, action con
 	}
 
 	start := time.Now()
-	output, err := d.Execute(driverCtx, merged)
+	output, err := d.Execute(driverCtx, action.Method, merged)
 	duration := time.Since(start)
 
 	return output, duration, err

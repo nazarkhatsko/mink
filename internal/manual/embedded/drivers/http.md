@@ -1,18 +1,32 @@
 # http
 
-Executes HTTP requests.
+Executes HTTP requests. Each method pins a fixed HTTP verb, except `request`
+which takes it as an option — for verbs without a dedicated method (`HEAD`,
+`OPTIONS`, custom).
 
 ## Config
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `timeout` | int | no | Request timeout in milliseconds (default: no timeout) |
+| `headers` | object | no | Headers merged into every request from this instance |
 
-## Options
+## Methods
+
+### `get`, `post`, `put`, `patch`, `delete`
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `method` | string | no | HTTP method. Default: `GET` |
+| `url` | string | yes | Full URL |
+| `headers` | object | no | Request headers |
+| `body` | any | no | Request body, serialized as JSON |
+
+### `request`
+
+Escape hatch for HTTP verbs without a dedicated method.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `method` | string | yes | HTTP method, e.g. `HEAD`, `OPTIONS` |
 | `url` | string | yes | Full URL |
 | `headers` | object | no | Request headers |
 | `body` | any | no | Request body, serialized as JSON |
@@ -49,6 +63,7 @@ Executes HTTP requests.
 instances:
   api:
     driver: http
+    methods: [get, post]
 
 flows:
   - id: example
@@ -56,8 +71,8 @@ flows:
       - id: create_user
         description: "POST new user"
         instance: api
+        method: post
         execute_with:
-          method: POST
           url: "${vars['base_url'] + '/users'}"
           headers:
             Authorization: "${'Bearer ' + state['token']}"
@@ -65,9 +80,17 @@ flows:
           body:
             name: "${actions['gen']['name']}"
             email: "${actions['gen']['email']}"
+
+      - id: fetch_user
+        description: "GET the created user"
+        instance: api
+        method: get
+        execute_with:
+          url: "${vars['base_url'] + '/users/' + str(state['user_id'])}"
 ```
 
 ## Notes
 
 - `Content-Type: application/json` is set automatically when `body` is present
 - Non-2xx responses do **not** cause the action to fail — use the `validate` driver to assert status codes
+- `execute_with` is strictly validated per method — e.g. `method:` is only a valid key under `request`, not under `get`/`post`/`put`/`patch`/`delete` (their verb is fixed by which method you call)

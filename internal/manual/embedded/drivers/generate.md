@@ -2,7 +2,9 @@
 
 Generates fake data based on a schema. Useful for creating randomized test payloads without hardcoding values.
 
-## Options
+## Methods
+
+### `object`
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -49,6 +51,7 @@ Returns the generated object directly.
 instances:
   gen:
     driver: generate
+    methods: [object]
 
 flows:
   - id: example
@@ -56,6 +59,7 @@ flows:
       - id: payload
         description: "Generate user payload"
         instance: gen
+        method: object
         execute_with:
           schema:
             name:

@@ -2,7 +2,9 @@
 
 Validates a value against a JSON Schema. If validation fails, the flow stops and an error is reported.
 
-## Options
+## Methods
+
+### `schema`
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -23,6 +25,7 @@ On failure the action errors and stops the flow — no output is produced.
 instances:
   check:
     driver: validate
+    methods: [schema]
 
 flows:
   - id: example
@@ -30,6 +33,7 @@ flows:
       - id: validate_response
         description: "Validate API response"
         instance: check
+        method: schema
         execute_with:
           value: "${actions.create_user.resp.body}"
           schema:
@@ -51,6 +55,7 @@ flows:
 - id: validate_status
   description: "Assert 201 Created"
   instance: check
+  method: schema
   execute_with:
     value: "${actions.create_user.resp}"
     schema:

@@ -9,7 +9,7 @@ Drivers are the building blocks of mink flows. Each driver encapsulates interact
 | http | HTTP requests |
 | generate | Fake data generation |
 | validate | JSON Schema validation |
-| sleep | Execution delay |
+| time | Execution delay |
 | shell | Shell command execution |
 | python | Python code/script execution |
 | claude | Claude API messages |

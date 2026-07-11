@@ -16,17 +16,66 @@ func New() *Driver { return &Driver{} }
 
 func (d *Driver) Name() string { return "shell" }
 
-func (d *Driver) Execute(ctx context.Context, options map[string]any) (driver.Output, error) {
-	command, ok := options["command"]
-	if !ok {
-		return nil, driver.NewError(driver.ErrConfig, "shell: command is required")
+func (d *Driver) Methods() []string { return []string{"run_code", "run_script"} }
+
+func (d *Driver) Options(method string) []driver.Option {
+	opts := []driver.Option{
+		{Name: "args"},
+		{Name: "env"},
+		{Name: "dir"},
 	}
-	cmd, ok := command.(string)
-	if !ok {
-		return nil, driver.NewError(driver.ErrConfig, "shell: command must be a string, got %T", command)
+	if method == "run_script" {
+		return append([]driver.Option{{Name: "script", Required: true}}, opts...)
+	}
+	return append([]driver.Option{{Name: "code", Required: true}}, opts...)
+}
+
+func (d *Driver) Execute(ctx context.Context, method string, options map[string]any) (driver.Output, error) {
+	switch method {
+	case "run_code":
+		code, _ := options["code"].(string)
+		if code == "" {
+			return nil, driver.NewError(driver.ErrConfig, "shell: code is required")
+		}
+		tmp, err := os.CreateTemp("", "mink-sh-*.sh")
+		if err != nil {
+			return nil, driver.Wrap(driver.ErrInternal, err, "shell: create temp script: %v", err)
+		}
+		defer os.Remove(tmp.Name())
+
+		if _, err := tmp.WriteString(code); err != nil {
+			tmp.Close()
+			return nil, driver.Wrap(driver.ErrInternal, err, "shell: write temp script: %v", err)
+		}
+		if err := tmp.Close(); err != nil {
+			return nil, driver.Wrap(driver.ErrInternal, err, "shell: close temp script: %v", err)
+		}
+		return d.run(ctx, tmp.Name(), options)
+	case "run_script":
+		script, _ := options["script"].(string)
+		if script == "" {
+			return nil, driver.NewError(driver.ErrConfig, "shell: script is required")
+		}
+		return d.run(ctx, script, options)
+	default:
+		return nil, driver.NewError(driver.ErrConfig, "shell: unknown method %q", method)
+	}
+}
+
+func (d *Driver) run(ctx context.Context, scriptPath string, options map[string]any) (driver.Output, error) {
+	var args []string
+	if raw, ok := options["args"]; ok {
+		list, ok := raw.([]any)
+		if !ok {
+			return nil, driver.NewError(driver.ErrConfig, "shell: args must be a list")
+		}
+		for _, v := range list {
+			args = append(args, fmt.Sprintf("%v", v))
+		}
 	}
 
-	c := exec.CommandContext(ctx, "sh", "-c", cmd)
+	cmdArgs := append([]string{scriptPath}, args...)
+	c := exec.CommandContext(ctx, "sh", cmdArgs...)
 
 	c.Env = os.Environ()
 	if raw, ok := options["env"]; ok {

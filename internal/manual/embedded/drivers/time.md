@@ -1,8 +1,10 @@
-# sleep
+# time
 
 Pauses flow execution for a given number of milliseconds. Useful when waiting for async operations to complete.
 
-## Options
+## Methods
+
+### `wait`
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -18,8 +20,13 @@ Pauses flow execution for a given number of milliseconds. Useful when waiting fo
 
 ```yaml
 instances:
-  sleep:
-    driver: sleep
+  api:
+    driver: http
+    methods: [get, post]
+
+  time:
+    driver: time
+    methods: [wait]
 
 flows:
   - id: example
@@ -27,20 +34,21 @@ flows:
       - id: trigger_job
         description: "Trigger async job"
         instance: api
+        method: post
         execute_with:
-          method: POST
           url: "${vars['base_url'] + '/jobs'}"
 
       - id: wait
         description: "Wait for job to complete"
-        instance: sleep
+        instance: time
+        method: wait
         execute_with:
           ms: 2000
 
       - id: check_job
         description: "Check job result"
         instance: api
+        method: get
         execute_with:
-          method: GET
           url: "${vars['base_url'] + '/jobs/' + str(actions['trigger_job']['resp']['body']['id'])}"
 ```
