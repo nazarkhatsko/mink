@@ -116,7 +116,7 @@ instances:
     driver: validate
 
 flows:
-  - id: "create_user"
+  - id: create_user
     description: "Create a user and validate the response"
     actions:
       - id: generate_user

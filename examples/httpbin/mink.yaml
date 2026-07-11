@@ -20,7 +20,8 @@ instances:
     driver: validate
 
 flows:
-  - id: "create_and_verify_user"
+  - id: create_and_verify_user
+    description: "Generate a fake user payload, POST it to httpbin, wait 200ms, validate the echoed response shape"
     actions:
       - id: generate_user
         description: "Generate random user payload"

@@ -25,7 +25,7 @@ instances:
     driver: validate
 
 flows:
-  - id: "example"
+  - id: example
     actions:
       - id: validate_response
         description: "Validate API response"

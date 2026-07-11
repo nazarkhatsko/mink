@@ -85,7 +85,7 @@ List of flows to execute sequentially.
 
 ```yaml
 flows:
-  - id: "create_user"
+  - id: create_user
     description: "Create a user and validate the payload"
     actions:
       - id: generate_user
@@ -217,7 +217,7 @@ instances:
         X-Api-Key: "secret"    # always sent
 
 flows:
-  - id: "example"
+  - id: example
     actions:
       - id: create
         instance: api

@@ -20,7 +20,8 @@ instances:
     driver: validate
 
 flows:
-  - id: "order_lifecycle"
+  - id: order_lifecycle
+    description: "Create an order, add three items while accumulating state, validate counts, fetch the server-computed total, checkout, and validate the final state"
     actions:
       # ── Generate product data ────────────────────────────────────────────────
 

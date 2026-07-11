@@ -11,7 +11,8 @@ instances:
     driver: validate
 
 flows:
-  - id: "inline_code"
+  - id: inline_code
+    description: "Run inline Python code that prints JSON, validate the structured stdout"
     actions:
       - id: compute_stats
         description: "Compute sum/average of a list of numbers in Python"
@@ -41,7 +42,8 @@ flows:
                 type: integer
                 const: 6
 
-  - id: "script_file"
+  - id: script_file
+    description: "Run transform.py with an argument, validate its JSON output"
     actions:
       - id: run_transform
         description: "Run transform.py with an argument and pick up its JSON result"

@@ -22,7 +22,7 @@ instances:
     driver: validate
 
 flows:
-  - id: "ping"
+  - id: ping
     actions:
       - id: ping
         instance: api

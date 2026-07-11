@@ -11,7 +11,8 @@ instances:
     driver: validate
 
 flows:
-  - id: "config_error"
+  - id: config_error
+    description: "http action missing the required url option"
     actions:
       - id: missing_url
         description: "http driver called without the required url option"
@@ -23,7 +24,8 @@ flows:
             state["code"]    = event["error"]["code"]
             state["message"] = event["error"]["message"]
 
-  - id: "transport_error"
+  - id: transport_error
+    description: "http request to 127.0.0.1:1 — nothing listens there, connection refused"
     actions:
       - id: connection_refused
         description: "nothing listens on port 1, so the TCP connect is refused immediately"
@@ -36,7 +38,8 @@ flows:
             state["code"]    = event["error"]["code"]
             state["message"] = event["error"]["message"]
 
-  - id: "timeout_error"
+  - id: timeout_error
+    description: "http request to the unroutable 10.255.255.1, with a 200ms action timeout"
     actions:
       - id: unroutable_host
         description: "10.255.255.1 is unroutable, so the 200ms action timeout fires first"
@@ -50,7 +53,8 @@ flows:
             state["code"]    = event["error"]["code"]
             state["message"] = event["error"]["message"]
 
-  - id: "assertion_error"
+  - id: assertion_error
+    description: "validate action whose value doesn't match its schema"
     actions:
       - id: schema_mismatch
         description: "value deliberately doesn't match the schema — this is what 'internal' means for validate: not a broken flow, a failed assertion"

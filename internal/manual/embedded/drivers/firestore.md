@@ -49,7 +49,7 @@ instances:
     driver: validate
 
 flows:
-  - id: "fetch_user"
+  - id: fetch_user
     actions:
       - id: fetch_user
         description: "Fetch a user document by its Firestore path"

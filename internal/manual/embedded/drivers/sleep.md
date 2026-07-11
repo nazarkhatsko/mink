@@ -22,7 +22,7 @@ instances:
     driver: sleep
 
 flows:
-  - id: "example"
+  - id: example
     actions:
       - id: trigger_job
         description: "Trigger async job"

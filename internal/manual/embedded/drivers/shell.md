@@ -40,7 +40,7 @@ instances:
     driver: shell
 
 flows:
-  - id: "db_setup"
+  - id: db_setup
     actions:
       - id: truncate
         description: "Truncate users table"

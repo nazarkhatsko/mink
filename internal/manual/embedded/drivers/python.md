@@ -55,7 +55,7 @@ instances:
     driver: validate
 
 flows:
-  - id: "signature_check"
+  - id: signature_check
     actions:
       - id: compute_signature
         description: "Compute an HMAC signature in Python and return it as structured data"
