@@ -24,7 +24,7 @@ func newReporter(name string) report.Reporter {
 }
 
 func NewCmd() *cobra.Command {
-	var flowName, reporterName, envFile string
+	var flowID, reporterName, envFile string
 
 	cmd := &cobra.Command{
 		Use:   "run <file>",
@@ -41,11 +41,11 @@ func NewCmd() *cobra.Command {
 				return err
 			}
 			eng := engine.New(cfg, newReporter(reporterName))
-			return eng.Run(context.Background(), flowName)
+			return eng.Run(context.Background(), flowID)
 		},
 	}
 
-	cmd.Flags().StringVar(&flowName, "flow", "", "Run only a specific flow by name")
+	cmd.Flags().StringVar(&flowID, "flow-id", "", "Run only a specific flow by id")
 	cmd.Flags().StringVar(&reporterName, "reporter", "pretty", "Output format: pretty|compact|json|silent")
 	cmd.Flags().StringVar(&envFile, "env", "", "Path to .env file")
 

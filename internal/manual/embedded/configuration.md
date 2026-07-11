@@ -85,7 +85,8 @@ List of flows to execute sequentially.
 
 ```yaml
 flows:
-  - name: "create-user"
+  - id: "create_user"
+    description: "Create a user and validate the payload"
     actions:
       - id: generate_user
         description: "Generate random payload"
@@ -101,14 +102,15 @@ flows:
 
 | Field | Type | Description |
 |---|---|---|
-| `name` | string | Unique flow name, used with `--flow` flag |
+| `id` | string | Unique flow identifier, used with `--flow-id` flag; must be snake_case (`^[a-z][a-z0-9_]*$`) |
+| `description` | string | Optional human-readable description |
 | `actions` | list | Ordered list of actions |
 
 ### Action fields
 
 | Field | Type | Description |
 |---|---|---|
-| `id` | string | Unique action identifier within the flow |
+| `id` | string | Unique action identifier within the flow; must be snake_case (`^[a-z][a-z0-9_]*$`) |
 | `description` | string | Human-readable description |
 | `instance` | string | Instance name from `instances` |
 | `timeout` | int | Timeout in milliseconds; cancels the action if exceeded (0 = no timeout) |
@@ -215,7 +217,7 @@ instances:
         X-Api-Key: "secret"    # always sent
 
 flows:
-  - name: "example"
+  - id: "example"
     actions:
       - id: create
         instance: api

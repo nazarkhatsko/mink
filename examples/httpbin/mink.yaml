@@ -20,7 +20,7 @@ instances:
     driver: validate
 
 flows:
-  - name: "create-and-verify-user"
+  - id: "create_and_verify_user"
     actions:
       - id: generate_user
         description: "Generate random user payload"

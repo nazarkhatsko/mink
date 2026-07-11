@@ -51,7 +51,7 @@ instances:
     driver: http
 
 flows:
-  - name: "example"
+  - id: "example"
     actions:
       - id: create_user
         description: "POST new user"

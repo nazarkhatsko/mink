@@ -21,9 +21,9 @@ func New(cfg *config.Config, reporter report.Reporter) *engine {
 	return &engine{cfg: cfg, reporter: reporter}
 }
 
-func (e *engine) Run(ctx context.Context, flowName string) error {
+func (e *engine) Run(ctx context.Context, flowID string) error {
 	for _, flow := range e.cfg.Flows {
-		if flowName != "" && flow.Name != flowName {
+		if flowID != "" && flow.ID != flowID {
 			continue
 		}
 		if err := e.runFlow(ctx, flow); err != nil {
@@ -34,7 +34,7 @@ func (e *engine) Run(ctx context.Context, flowName string) error {
 }
 
 func (e *engine) runFlow(ctx context.Context, flow config.Flow) error {
-	e.reporter.FlowStart(flow.Name)
+	e.reporter.FlowStart(flow.ID, flow.Description)
 
 	envVars := make(map[string]string)
 	for _, entry := range os.Environ() {
@@ -83,7 +83,7 @@ func (e *engine) runFlow(ctx context.Context, flow config.Flow) error {
 		e.reporter.ActionDone(action.ID, output, duration, execCtx.resolver.State)
 	}
 
-	e.reporter.FlowDone(flow.Name, execCtx.resolver.State)
+	e.reporter.FlowDone(flow.ID, execCtx.resolver.State)
 	return nil
 }
 

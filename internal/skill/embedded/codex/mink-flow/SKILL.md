@@ -17,6 +17,7 @@ If anything below conflicts with `mink manual`, trust `mink manual`.
 
 - Always start with `version: "1.0"` and `info:` block
 - Define all required drivers in `instances:` before using them in `flows:`
+- Every flow must have `id:` (snake_case, same format as action `id`) and may include an optional `description:`
 - Every action must have `id:`, `description:`, `instance:`, and `execute_with:`
 - Add `timeout:` (milliseconds) on an action when it may hang (shell commands, slow endpoints)
 - Use `${vars['key']}` for reusable values, `${env['KEY']}` for secrets
@@ -115,7 +116,8 @@ instances:
     driver: validate
 
 flows:
-  - name: "create-user"
+  - id: "create_user"
+    description: "Create a user and validate the response"
     actions:
       - id: generate_user
         description: "Generate random user payload"

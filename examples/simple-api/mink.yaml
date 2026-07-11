@@ -18,7 +18,7 @@ instances:
     driver: validate
 
 flows:
-  - name: "unauthorized-request"
+  - id: "unauthorized_request"
     actions:
       - id: request_without_key
         description: "Request without API key should return 401"
@@ -39,7 +39,8 @@ flows:
                 type: integer
                 const: 401
 
-  - name: "user-lifecycle"
+  - id: "user_lifecycle"
+    description: "Generate a user, create it, fetch, list, delete, and confirm 404"
     actions:
       - id: generate_user
         description: "Generate random user payload"

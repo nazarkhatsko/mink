@@ -60,7 +60,7 @@ instances:
       model: "claude-sonnet-4-6"
 
 flows:
-  - name: "llm-sanity-check"
+  - id: "llm_sanity_check"
     actions:
       - id: ask_claude
         description: "Ask Claude to classify a support ticket"

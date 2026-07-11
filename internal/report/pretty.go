@@ -11,12 +11,16 @@ type Pretty struct{}
 
 func NewPretty() *Pretty { return &Pretty{} }
 
-func (r *Pretty) FlowStart(name string) {
-	console.Printlnf("\n▶ flow: %s", name)
+func (r *Pretty) FlowStart(id, description string) {
+	if description != "" {
+		console.Printlnf("\n▶ flow: %s — %s", id, description)
+	} else {
+		console.Printlnf("\n▶ flow: %s", id)
+	}
 }
 
-func (r *Pretty) FlowDone(name string, _ map[string]any) {
-	console.Printlnf("✓ flow done: %s", name)
+func (r *Pretty) FlowDone(id string, _ map[string]any) {
+	console.Printlnf("✓ flow done: %s", id)
 }
 
 func (r *Pretty) ActionStart(id, description string) {

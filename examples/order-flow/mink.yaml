@@ -20,7 +20,7 @@ instances:
     driver: validate
 
 flows:
-  - name: "order-lifecycle"
+  - id: "order_lifecycle"
     actions:
       # ── Generate product data ────────────────────────────────────────────────
 

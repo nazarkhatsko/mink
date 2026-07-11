@@ -22,7 +22,7 @@ instances:
     driver: validate
 
 flows:
-  - name: "ping"
+  - id: "ping"
     actions:
       - id: ping
         instance: api
@@ -48,7 +48,7 @@ mink run mink.yaml
 
 ```bash
 mink run <file>                         # run all flows
-mink run <file> --flow <name>           # run a specific flow
+mink run <file> --flow-id <id>          # run a specific flow
 mink run <file> --reporter compact      # change output format
 mink run <file> --env .env              # load environment variables from file
 mink validate <file>                    # validate config without running

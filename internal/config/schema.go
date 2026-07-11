@@ -19,8 +19,9 @@ type Instance struct {
 }
 
 type Flow struct {
-	Name    string   `yaml:"name"`
-	Actions []Action `yaml:"actions"`
+	ID          string   `yaml:"id"`
+	Description string   `yaml:"description"`
+	Actions     []Action `yaml:"actions"`
 }
 
 type Action struct {

@@ -9,18 +9,18 @@ import (
 )
 
 type JSON struct {
-	flow string
+	flowID string
 }
 
 func NewJSON() *JSON { return &JSON{} }
 
-func (r *JSON) FlowStart(name string) {
-	r.flow = name
-	r.write(map[string]any{"type": "flow_start", "flow": name})
+func (r *JSON) FlowStart(id, description string) {
+	r.flowID = id
+	r.write(map[string]any{"type": "flow_start", "flow_id": id, "description": description})
 }
 
-func (r *JSON) FlowDone(name string, state map[string]any) {
-	r.write(map[string]any{"type": "flow_done", "flow": name, "state": state})
+func (r *JSON) FlowDone(id string, state map[string]any) {
+	r.write(map[string]any{"type": "flow_done", "flow_id": id, "state": state})
 }
 
 func (r *JSON) ActionStart(_, _ string) {}
@@ -28,7 +28,7 @@ func (r *JSON) ActionStart(_, _ string) {}
 func (r *JSON) ActionDone(id string, output driver.Output, duration time.Duration, state map[string]any) {
 	r.write(map[string]any{
 		"type":        "action_done",
-		"flow":        r.flow,
+		"flow_id":     r.flowID,
 		"action_id":   id,
 		"duration_ms": duration.Milliseconds(),
 		"output":      output,
@@ -40,7 +40,7 @@ func (r *JSON) ActionDone(id string, output driver.Output, duration time.Duratio
 func (r *JSON) ActionFail(id string, output driver.Output, err error, duration time.Duration, state map[string]any) {
 	r.write(map[string]any{
 		"type":        "action_fail",
-		"flow":        r.flow,
+		"flow_id":     r.flowID,
 		"action_id":   id,
 		"duration_ms": duration.Milliseconds(),
 		"output":      output,

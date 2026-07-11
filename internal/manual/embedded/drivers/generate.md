@@ -51,7 +51,7 @@ instances:
     driver: generate
 
 flows:
-  - name: "example"
+  - id: "example"
     actions:
       - id: payload
         description: "Generate user payload"

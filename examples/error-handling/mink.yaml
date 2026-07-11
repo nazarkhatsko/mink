@@ -11,7 +11,7 @@ instances:
     driver: validate
 
 flows:
-  - name: "config-error"
+  - id: "config_error"
     actions:
       - id: missing_url
         description: "http driver called without the required url option"
@@ -23,7 +23,7 @@ flows:
             state["code"]    = event["error"]["code"]
             state["message"] = event["error"]["message"]
 
-  - name: "transport-error"
+  - id: "transport_error"
     actions:
       - id: connection_refused
         description: "nothing listens on port 1, so the TCP connect is refused immediately"
@@ -36,7 +36,7 @@ flows:
             state["code"]    = event["error"]["code"]
             state["message"] = event["error"]["message"]
 
-  - name: "timeout-error"
+  - id: "timeout_error"
     actions:
       - id: unroutable_host
         description: "10.255.255.1 is unroutable, so the 200ms action timeout fires first"
@@ -50,7 +50,7 @@ flows:
             state["code"]    = event["error"]["code"]
             state["message"] = event["error"]["message"]
 
-  - name: "assertion-error"
+  - id: "assertion_error"
     actions:
       - id: schema_mismatch
         description: "value deliberately doesn't match the schema — this is what 'internal' means for validate: not a broken flow, a failed assertion"

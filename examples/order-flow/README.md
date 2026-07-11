@@ -15,6 +15,6 @@ mink run examples/order-flow/mink.yaml
 📋 **Flow**
 | Flow | What it does |
 |---|---|
-| `order-lifecycle` | Creates an order, adds three items while accumulating their IDs/names into `state`, validates the accumulated count, fetches the order to capture the server-computed total into `state`, checks out, and validates the final state against the server response |
+| `order_lifecycle` | Creates an order, adds three items while accumulating their IDs/names into `state`, validates the accumulated count, fetches the order to capture the server-computed total into `state`, checks out, and validates the final state against the server response |
 
 ⬅️ [Back to examples](../README.md)
